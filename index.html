@@ -25,7 +25,7 @@
 
 
   <title>Team 6 Project Proposal</title>
-  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
   rel="stylesheet">
 
@@ -143,7 +143,7 @@
             Researchers have proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we will perform data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we will use convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
           </p>
           <p>
-            To reduce dataset size, we will utilize Mask R-CNN <code>(torchvision.models.detection.mask_rcnn.MaskRCNN)</code> to detect areas of frames in which faces are present via pixel-level object segmentation. We will perform voice activity detection using Mel-frequency cepstral coefficients and support vector machines <code>(sklearn.svm.SVC)</code> to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
+            To reduce dataset size, we will utilize Mask R-CNN <code>(torchvision.models.detection.mask_rcnn)</code> to detect areas of frames in which faces are present via pixel-level object segmentation. We will perform voice activity detection using Mel-frequency cepstral coefficients and support vector machines <code>(sklearn.svm.SVC)</code> to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
           </p>
           <p>
             We investigate the performance of three different models on classification. The first is a CNN-based ensemble model (such as DeepfakeStack) because of their ability to identify facial features in images at medium and fine scales [8]. The second is a Vision Transformer-based model owing to their ability to capture long-range video dependencies [9]. Although typically less effective, we also train an SVM on features extracted by feature-point detectors to compare its performance with the aforementioned deep learning methods [10].
@@ -300,9 +300,9 @@
         <div class="content">
 
           <p>
-            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>, which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>, which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
             You are free to borrow the of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>. <br>
+            Commons Attribution-ShareAlike 4.0 International License</a>.  <br>
             Favicon sourced from <a href="https://favicon.io/emoji-favicons/" target="_blank">favicon.io</a> based on graphics from <a href="https://github.com/twitter/twemoji">Twemoji</a>.
           </p>
 
