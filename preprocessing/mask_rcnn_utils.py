@@ -12,7 +12,7 @@ import numpy as np
 
 import ffmpeg
 
-from preprocessing.utils import mask_rcnn_parse, mask_rcnn_detect, output_video, extract_audio
+from utils import mask_rcnn_parse, mask_rcnn_detect, output_video, extract_audio
 
 # classes and randomly generated colors
 classes = ["BG","person","bicycle","car","motorcycle","airplane","bus","train","truck","boat","traffic light","fire hydrant",None,"stop sign","parking meter","bench","bird","cat","dog","horse","sheep","cow","elephant","bear","zebra","giraffe",None,"backpack","umbrella",None,None,"handbag","tie","suitcase","frisbee","skis","snowboard","sports ball","kite","baseball bat","baseball glove","skateboard","surfboard","tennis racket","bottle",None,"wine glass","cup","fork","knife","spoon","bowl","banana","apple","sandwich","orange","broccoli","carrot","hot dog","pizza","donut","cake","chair","couch","potted plant","bed",None,"dining table",None,None,"toilet",None,"tv","laptop","mouse","remote","keyboard","cell phone","microwave","oven","toaster","sink","refrigerator",None,"book","clock","vase","scissors","teddy bear","hair drier","toothbrush"]
@@ -26,29 +26,38 @@ include_classes = classes[1:] if "all" in args.classes else [c for c in args.cla
 
 # load model
 model = maskrcnn(weights=MaskRCNN_ResNet50_FPN_V2_Weights.DEFAULT).eval()
+if torch.cuda.is_available():
+    model = model.cuda()
 
 def mask_rcnn_inference():
     for dir in os.listdir(args.data_folder):
         for video in os.listdir(f'{args.data_folder}/{dir}'):
-            extract_audio(f'{args.data_folder}/{dir}/{video}', f'{args.output_folder}/{video.split(".")[0]}.wav')
-
             print(f'Processing {video}')
-            input_video = f'{args.data_folder}/{dir}/{video}'
-            frame_folder = f'video_frames/{video.split(".")[0]}'
+            
+            # print(f'Extracting audio from {video}')
+            # extract_audio(video)
+            
             output_folder = args.output_folder
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder)
             
+            input_video = f'{args.data_folder}/{dir}/{video}'
             source = input_video
             cap = cv2.VideoCapture(source)
-            
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            # print(f'Video resolution: {width}x{height}')
+
             if cap is None or not cap.isOpened():
                 raise RuntimeError(f"video (\"{source}\") is not a valid input")
             
-            if not os.path.exists('video_frames'):
-                os.makedirs('video_frames')
+            frame_folder = f'video_frames/{video.split(".")[0]}'
             if not os.path.exists(frame_folder):
                 os.makedirs(frame_folder)
+            
+            processed_frame_folder = f'processed_frames/{video.split(".")[0]}'
+            if not os.path.exists(processed_frame_folder):
+                os.makedirs(processed_frame_folder)
             
             skip_frames = args.skip_frames # change to skip frames
             frame_count = 0
@@ -72,6 +81,8 @@ def mask_rcnn_inference():
                 files += glob(f"{folder}**/*.{extension}",recursive=True)
             
             i = 0
+            global max_bounding_box
+            max_bounding_box = (height, 0, width, 0)
             while True:
                 # get the path and image
                 path = files[i]
@@ -88,7 +99,7 @@ def mask_rcnn_inference():
                 
                 # save output
                 if not args.no_save:
-                    save_path = os.path.join(output_folder, os.path.relpath(path, folder))
+                    save_path = os.path.join(processed_frame_folder, os.path.relpath(path, folder))
                     # save image
                     directory = os.path.dirname(save_path)
                     if directory:
@@ -97,7 +108,7 @@ def mask_rcnn_inference():
                     if i >= len(files):
                         break
 
-            output_video(frame_folder, output_folder, input_video)
+            output_video(processed_frame_folder, output_folder, video)
 
 if __name__ == "__main__":
     mask_rcnn_inference()
