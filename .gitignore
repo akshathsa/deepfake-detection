@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# local data
+/dfdc_train_part_45
+/maskrcnn_videos
+dataviz.ipynb
+metadata.json
+
 # Distribution / packaging
 .Python
 build/
