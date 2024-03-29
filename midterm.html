@@ -23,7 +23,6 @@
   <meta name="keywords" content="deepfakes, computer vision, speech recognition">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
   <title>Team 6 Project Proposal</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
@@ -33,8 +32,7 @@
   <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
   <link rel="stylesheet" href="static/css/bulma-slider.min.css">
   <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
   <link rel="stylesheet" href="static/css/index.css">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -131,6 +129,93 @@
   </div>
 </section>
 <!-- End Problem Definition -->
+
+ <!-- EDA -->
+ <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Exploratory Data Analysis and Visualizations</h2>
+          <div class="content has-text-justified">
+            <h5 class="title">Dataset</h5>
+            <p>
+              The dataset used in this project was sourced from the <a href="https://www.kaggle.com/competitions/deepfake-detection-challenge/data" style="color: blue;">Deepfake Detection Challenge (DFDC)</a>
+              on Kaggle. More specifically, our team focused on a smaller subset of the data, which was around 10GB, whereas the entire dataset was a whopping 472GB, far too big for the scale of this project.
+            </p>
+            <h5 class="title">General Data Exploration</h5>
+            <p>
+                Let us start by analyzing the distribution of the dataset. From Figure 1, we can see that we have a skewed dataset
+                with mostly fake videos. This is because the fake videos in this dataset were originally generated from real videos, therefore
+                for each real video, there are potentially multiple fake videos that were generated using the real as a base.
+                By analyzing the dataset, we were able to find out that each real video was used to generate, on average, 4.4 fake videos. 
+            </p>
+            <figure>
+                <img src="./static/images/data_prop.png" alt="Data Prop" style="width:50%">
+                <figcaption>Figure 1 - Proportion of each class in the dataset</figcaption>
+            </figure>
+            <h5 class="title">Single Frame Exploration</h5>
+            <p>
+              Let us take a closer look at the dataset now, by extracting specific frames of the video.
+              Below are three frames from randomly chosen videos from each class.
+          </p>
+          <figure>
+              <img src="./static/images/reals.png" alt="Reals" style="width:100%">
+              <figcaption>Figure 2 - Single frames from real videos</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images/fakes.png" alt="Fakes" style="width:100%">
+            <figcaption>Figure 3 - Single frames from fake videos</figcaption>
+          </figure>
+          <h5 class="title">Consecutive Multi Frame Exploration</h5>
+          <p>
+            Unfortunately, we are not able to tell much from still images. Where AI struggles is maintaining consistency across frames in a video.
+            Let us now slice into the videos and analyze a subset of frames at a time. To the left is a real video, whereas the right one is fake.
+            Just from here, we are able to notice quite a bit. For instance, the face in the fake video is blurry and lacks detail, to the point
+            where it even cuts off the person's glasses.
+          </p>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+          <video width="400" height="250" controls>
+            <source src="./static/videos/real.mp4" type="video/mp4">
+          </video>
+          <video width="400" height="250" controls>
+            <source src="./static/videos/fake.mp4" type="video/mp4">
+          </video>
+        </div>
+        <h5 class="title" style="margin-top: 25px;">Haar Cascade Face Detection and Exploration</h5>
+        <p>
+          We can see that most of the inconsistency is around the face, which is usually the most difficult for an AI to get right. Let us zoom into the 
+          faces in these videos. To do this, we will utilize an object detection algorithm called Haar Cascades Classifier.
+        </p>
+        <p>
+          Notice the variations and expressiveness of the real video, as compared to the blank and emotionless face in the fake one.
+        </p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+          <video width="400" height="250" controls>
+            <source src="./static/videos/real_face.mp4" type="video/mp4">
+          </video>
+          <video width="400" height="250" controls>
+            <source src="./static/videos/fake_face.mp4" type="video/mp4">
+          </video>
+        </div>
+        <h5 class="title" style="margin-top: 25px;">Structural Similarity (SSIM) Index</h5>
+        <p>
+          Now that we know this fact about inconsistency, let us try to quantify it by making use of a metric called the Structural Similarity (SSIM) Index.
+          Unfortunately, there does not seem to be a clear indicator that fake videos have a lower SSIM score, as both the real and fake ones seem to be quite random.
+        </p>
+        <figure>
+          <img src="./static/images/ssim.png" alt="SSIM" style="width:100%">
+          <figcaption>Figure 4 - SSIM score between consecutive frames</figcaption>
+        </figure>
+        <p>
+          Now that we have explored the dataset, we can start preprocessing the videos to be trained.
+          We will look into that in the next section.
+        </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End EDA -->
   
   <!-- Methods -->
 <section class="section hero is-light">
@@ -231,7 +316,7 @@
   </tr>
   <tr>
     <td>Sagar Sadak</td>
-    <td>Introduction, Problem Definition, Gantt Chart, Slides</td>
+    <td>Report, EDA, Data Visualization</td>
   </tr>
   <tr>
     <td>Shaam Bala</td>
