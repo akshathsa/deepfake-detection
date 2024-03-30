@@ -9,8 +9,9 @@ __pycache__/
 # local data
 /dfdc_train_part_45
 /maskrcnn_videos
-dataviz.ipynb
 metadata.json
+index.html
+/static
 
 # Distribution / packaging
 .Python
