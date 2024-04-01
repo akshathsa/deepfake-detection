@@ -260,6 +260,20 @@
           </p>
           <p>
             Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
+            An accuracy score of 59% for a machine learning classification model is a starting point for evaluation. Its adequacy or lack thereof depends on the specific context of the problem, including class distribution and the complexity of the dataset. It's a signal to explore the model's performance further, considering other metrics and possibly adopting strategies for improvement. Always aim to compare this performance against a meaningful baseline and consider the model's accuracy in conjunction with other performance metrics to get a fuller picture of its effectiveness.
+
+		A ROC AUC score of 0.289 suggests that the model is not effectively distinguishing between the classes and is performing significantly worse than a model that makes random guesses. This indicates a need for substantial model review and likely adjustments to either the model, the features used, or the data preprocessing steps.
+
+		SVM supports different kernels like linear, polynomial, SGD and many others. I used SVC. C parameters also can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. I did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. I used the default of 3. Gamma parameter controls kernel coefficient. I used the default value of "scale". There is another possible value "auto". I did not alter to study the impact of that. For completeness, I am listing the other parameters to be tuned, coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties and random_state. All these could be tuned through multiple iterations to get better accuracies from the model.  
+
+	Personal mac resource also limited the training data size. Using any cloud offering by getting higher compute resources including more cores and large memory will also reduce the training time and can handle bigger training dataset to improve the accuracies. When I saved the trained model to my disk in pickle format, it was more than 24 GB. It explains how resource sensitive these experiments were. By using high compute machines, the process could be improved significantly. 
+
+
+	First iteration with 100 videos (80%-20% training-test split) 
+		50 real videos and 50 fake videos
+           
+Accuracy Score : 0.5904761904761905
+
           </p>
         </div>
       </div>
