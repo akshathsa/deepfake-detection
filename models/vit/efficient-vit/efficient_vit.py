@@ -1,4 +1,4 @@
-## Takes in pre-extracted face and outputs probability that face has been manipulated
+## Takes in pre-extracted face and outputs probability that face has been manipulated (EfficientNet uses pre-trained weights)
 
 import torch
 from torch import nn
@@ -149,25 +149,6 @@ class EfficientViT(nn.Module):
     def forward(self, img, mask=None):
         p = self.patch_size
         x = self.efficient_net.extract_features(img) # 1280x7x7
-        #x = self.features(img)
-        '''
-        for im in img:
-            image = im.cpu().detach().numpy()
-            image = np.transpose(image, (1,2,0))
-            cv2.imwrite("images/image"+str(randint(0,1000))+".png", image)
-        
-        x_scaled = []
-        for idx, im in enumerate(x):
-            im = im.cpu().detach().numpy()
-            for patch_idx, patch in enumerate(im):
-                patch = (255*(patch - np.min(patch))/np.ptp(patch)) 
-                im[patch_idx] = patch
-                #cv2.imwrite("patches/patches_"+str(idx)+"_"+str(patch_idx)+".png", patch)
-            x_scaled.append(im)
-        x = torch.tensor(x_scaled).cuda()   
-        '''
-
-        #x2 = self.features(img)
         y = rearrange(x, 'b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = p, p2 = p)
         #y2 = rearrange(x2, 'b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1 = p, p2 = p)
         y = self.patch_to_embedding(y)
