@@ -1,0 +1,246 @@
+<head>
+    <meta charset="utf-8">
+    <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+    <!-- Replace the content tag with appropriate information -->
+    <meta name="description" content="DESCRIPTION META TAG">
+    <meta property="og:title" content="SOCIAL MEDIA TITLE TAG"/>
+    <meta property="og:description" content="SOCIAL MEDIA DESCRIPTION TAG TAG"/>
+    <meta property="og:url" content="URL OF THE WEBSITE"/>
+    <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+    <meta property="og:image" content="static/image/your_banner_image.png" />
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="630"/>
+  
+  
+    <meta name="twitter:title" content="TWITTER BANNER TITLE META TAG">
+    <meta name="twitter:description" content="TWITTER BANNER DESCRIPTION META TAG">
+    <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600-->
+    <meta name="twitter:image" content="static/images/your_twitter_banner_image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- Keywords for your paper to be indexed by-->
+    <meta name="keywords" content="deepfakes, computer vision, speech recognition">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  
+    <title>Team 6 Project Proposal</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+    rel="stylesheet">
+  
+    <link rel="stylesheet" href="static/css/bulma.min.css">
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="static/css/index.css">
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+    <script defer src="static/js/fontawesome.all.min.js"></script>
+    <script src="static/js/bulma-carousel.min.js"></script>
+    <script src="static/js/bulma-slider.min.js"></script>
+    <script src="static/js/index.js"></script>
+</head>
+
+
+<!-- Paper Intro -->
+<section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Introduction/Background</h2>
+          <div class="content has-text-justified">
+            <p>
+              “Deepfakes” encompasses a wide range of media created from the manipulation of existing sources and/or the creation of new content using advanced technologies. They can be used for malicious purposes, motivating the need to be able to identify deepfakes [1].
+            </p>
+            <p>
+              Some approaches to deepfake detection include machine learning-based methods, deep learning-based methods (~77% of all research), statistical-based methods, and blockchain-based methods [2]. The main process of detecting deepfakes entails two parts: assessing how the face is integrated with its background and how the background blends with the face [3].
+            </p>
+            <p>
+              We will primarily use the <a href="https://www.kaggle.com/c/deepfake-detection-challenge/data">DFDC dataset</a>, which includes deepfakes involving the manipulation of human facial images and voices [4].
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Intro -->
+    
+    <!-- Problem Definition -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Problem Definition</h2>
+          <div class="content has-text-justified">
+            <p>
+              The growing proliferation of deepfake technology poses various risks, including identity theft and the spread of misinformation. Our team’s motivation thus stems from the dire necessity for people to reliably distinguish between fiction and reality. By developing an effective model that can classify, with high AUC/ROC, whether videos are authentic or AI-generated, we aim to combat the aforementioned issues.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Problem Definition -->
+    
+    <!-- Methods -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Methods</h2>
+          <div class="content has-text-justified">
+            <p>
+              Researchers have proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we will perform data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we will use convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
+            </p>
+            <p>
+              To reduce dataset size, we will utilize Mask R-CNN <code>(torchvision.models.detection.mask_rcnn)</code> to detect areas of frames in which faces are present via pixel-level object segmentation. We will perform voice activity detection using Mel-frequency cepstral coefficients and support vector machines <code>(sklearn.svm.SVC)</code> to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
+            </p>
+            <p>
+              We investigate the performance of three different models on classification. The first is a CNN-based ensemble model (such as DeepfakeStack) because of their ability to identify facial features in images at medium and fine scales [8]. The second is a Vision Transformer-based model owing to their ability to capture long-range video dependencies [9]. Although typically less effective, we also train an SVM on features extracted by feature-point detectors to compare its performance with the aforementioned deep learning methods [10].
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Methods -->
+    
+     <!-- Results and Discussion -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Results and Discussion</h2>
+          <div class="content has-text-justified">
+            <p>
+              Based on how widely various metrics are used for this task, we have chosen the following metrics [2]:
+            </p>
+            <ol>
+              <li>Area under the ROC curve evaluates binary classifier performance across different classification thresholds [1]. It also quantifies how well the model can differentiate classes [11].</li>
+              <li>Precision measures the proportion of positive results within the positive predictions, ensuring that there are few false positives [12]. </li>
+              <li>Log loss increases as predictive probability diverges from the actual label [13].</li>
+            </ol>
+            <p>
+              Goal: We aim to detect whether a video is a deepfake accurately by maximizing the first two metrics and minimizing the third.
+            </p>
+            <p>
+              Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Results and Discussion -->
+    
+     <!-- References -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">References</h2>
+          <div class="content has-text-justified">
+            <p>
+            [1] E. Altuncu, V. Franqueira and S. Li, "Deepfake: Definitions, Performance Metrics and Standards, Datasets and Benchmarks, and a Meta-Review," arXiv:2208.10913 [cs.CV].
+            </p>
+            <p>
+            [2] M. S. Rana, M. N. Nobi, B. Murali and A. H. Sung, "Deepfake Detection: A Systematic Literature Review," in IEEE Access, vol. 10, pp. 25494-25513, 2022, doi: 10.1109/ACCESS.2022.3154404.  
+            </p>
+            <p>
+            [3] Y. Nirkin, L. Wolf, Y. Keller and T. Hassner, "DeepFake Detection Based on Discrepancies Between Faces and Their Context," in IEEE Transactions on Pattern Analysis and Machine Intelligence, vol. 44, no. 10, pp. 6111-6121, 1 Oct. 2022, doi: 10.1109/TPAMI.2021.3093446.  
+            </p>
+            <p>
+              [4] Brian Dolhansky, et al., "The DeepFake Detection Challenge (DFDC) Dataset," arXiv:2006.07397 [cs.CV].
+            </p>
+            <p>
+              [5] Y. Li and S. Lyu, "Exposing deepfake videos by detecting face warping artifacts," arXiv:1811.00656 [cs.CV].
+            </p>
+            <p>
+              [6] J. Liang and K. Kelly, "Training Stacked Denoising Autoencoders for Representation Learning," arXiv:2102.08012 [cs.CV].
+            </p>
+            <p>
+              [7] T. Kinnunen, E. Chernenko, M. Tuononen, P. Fränti, and H. Li, "Voice Activity Detection Using MFCC Features and Support Vector Machine," Semantic Scholar, 2007. https://www.semanticscholar.org/paper/Voice-Activity-Detection-Using-MFCC-Features-and-Kinnunen-Chernenko/a31eeed2b395e923d3c077d5fedbecfd7f381dd2.
+            </p>
+            <p>
+              [8] M. S. Rana and A. H. Sung, "DeepfakeStack: A Deep Ensemble-based Learning Technique for Deepfake Detection," 2020 7th IEEE International Conference on Cyber Security and Cloud Computing (CSCloud)/2020 6th IEEE International Conference on Edge Computing and Scalable Cloud (EdgeCom), New York, NY, USA, 2020, pp. 70-75, doi: 10.1109/CSCloud-EdgeCom49738.2020.00021.
+            </p>
+            <p>
+              [9] D. Wodajo, S. Atnafu, and Z. Akhtar, "Deepfake Video Detection Using Generative Convolutional Vision Transformer," arXiv:2307.07036 [cs.CV].
+            </p>
+            <p>
+              [10] F. F. Kharbat, T. Elamsy, A. Mahmoud and R. Abdullah, "Image Feature Detectors for Deepfake Video Detection," 2019 IEEE/ACS 16th International Conference on Computer Systems and Applications (AICCSA), Abu Dhabi, United Arab Emirates, 2019, pp. 1-4, doi: 10.1109/AICCSA47632.2019.9035360.
+            </p>
+            <p>
+              [11] M. Norton and S. Uryasev, "Maximization of AUC and Buffered AUC in binary classification," Mathematical Programming, vol. 174, no. 1–2, pp. 575–612, Jul. 2018, doi: https://doi.org/10.1007/s10107-018-1312-2.
+            </p>
+            <p>
+              [12] M. Groh , Z. Epstein, C. Firestone, and R. Picard, "Deepfake detection by human crowds, machines, and machine-informed ...," pnas, https://www.pnas.org/doi/10.1073/pnas.2110013119.
+            </p>
+            <p>
+              [13] S. A. Khan and D.-T. Dang-Nguyen, "Deepfake Detection: A Comparative Analysis," arXiv.org e-Print archive, https://arxiv.org/.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End References -->
+    
+    <section class="hero is-small">
+    <div class="hero-body">
+      <div class="container">
+        <!-- Paper video. -->
+        <h2 class="title is-3">Contribution Table</h2>
+        <div class="columns is-centered has-text-centered">
+    <table class="styled-table">
+    <tr>
+      <th>Name</th>
+      <th>Proposal Contributions</th>
+    </tr>
+    <tr>
+      <td>Sagar Sadak</td>
+      <td>Introduction, Problem Definition, Gantt Chart, Slides</td>
+    </tr>
+    <tr>
+      <td>Shaam Bala</td>
+      <td>Introduction, Methods, Slides</td>
+    </tr>
+      <tr>
+      <td>Akaash Parthasarathy</td>
+      <td>Methods, Slides</td>
+    </tr>
+      <tr>
+      <td>Akshath Shvetang Anna</td>
+      <td>Metrics, Project Goal, Intro, Slides</td>
+    </tr>
+      <tr>
+      <td>Harish Rajan</td>
+      <td>Metrics, Project Goal, Results, Slides</td>
+    </tr>
+  </table>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Youtube video -->
+  <section class="hero is-small is-light">
+    <div class="hero-body">
+      <div class="container">
+        <!-- Paper video. -->
+        <h2 class="title is-3">Video Presentation</h2>
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            
+            <div class="publication-video">
+              <!-- Youtube embed code here -->
+              <iframe src="https://www.youtube.com/embed/7k3-8aQZLjA?si=G9SbrsAjeRY4uwS8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End youtube video -->
