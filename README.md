@@ -4,8 +4,8 @@
 /eda/haarcascade_frontalface_default.xml: XML file containing the haar cascade face detection model.
 
 /preprocessing/: Directory containing implementations of data pre-processing techniques.<br>
-/preprocessing/mask_rcnn.py: Contains inference code for Mask R-CNN loaded with pre-trained weights from training on COCO dataset.<br>
-/preprocessing/utils.py: Contains helper functions for Mask R-CNN inference.
+/preprocessing/mask_rcnn/mask_rcnn.py: Contains inference code for Mask R-CNN loaded with pre-trained weights from training on COCO dataset.<br>
+/preprocessing/mask_rcnn/utils.py: Contains helper functions for Mask R-CNN inference.
 
 /models/: Directory containing model implementations<br>
 
