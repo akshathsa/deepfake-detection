@@ -52,7 +52,7 @@
         <h2 class="title is-3">Introduction/Background</h2>
         <div class="content has-text-justified">
           <p>
-            “Deepfakes” encompasses a wide range of media created from the manipulation of existing sources and/or the creation of new content using advanced technologies. They can be used for malicious purposes, motivating the need to be able to identify deepfakes [1].
+            "Deepfakes" encompasses a wide range of media created from the manipulation of existing sources and/or the creation of new content using advanced technologies. They can be used for malicious purposes, motivating the need to be able to identify deepfakes [1].
           </p>
           <p>
             Some approaches to deepfake detection include machine learning-based methods, deep learning-based methods (~77% of all research), statistical-based methods, and blockchain-based methods [2]. The main process of detecting deepfakes entails two parts: assessing how the face is integrated with its background and how the background blends with the face [3].
@@ -178,20 +178,71 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3">Methods</h2>
         <div class="content has-text-justified">
-
+          <p>
+            Our final project submission will include three separate methods for data preprocessing. The first method involves the use of Mask R-CNN to detect people in the video. The second method involves the use of convolutional autoencoders to reduce the dimensionality of the data. The third method involves performing data augmentation through minor video transformations that do not constitute deepfakes.
+          </p>
+          <p>
+            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output of the Mask R-CNN model is shown below.
+          </p>
+          <figure>
+            <video width="400" height="250" controls>
+              <source src="./static/videos/mask_rcnn.mp4" type="video/mp4">
+            </video>
+          </figure>
+          
+          <p>
+            Our final project submission will include the implementation of three different deepfake classification techniques. The first involves the use of a support vector machine (SVM) trained on features extracted by feature point detectors. The second involves the use of a convolutional neural network (CNN) architecture called EfficientNet combined with a Vision Transformer. We will also implement a CNN ensemble model that utilizes two different CNN architectures combined with a meta-learner.
+          </p>
           <h5 class="title">Support Vector Machine Implementation</h5>
           <figure>
             <img src="./static/images/flowchat.png" style="width:100%">
             <figcaption>Figure 5 - Flowchart of SVM process</figcaption>
-        </figure>
+          </figure>
           <p>
-            For our first model we utilized a support vector machine to assist in voice activity detection. Our process consisted of proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we performed data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we used convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
+            For our first model we utilized a support vector machine to assist in voice activity detection. Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model.
           </p>
           <p>
-            To reduce dataset size, we utilized Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN) to detect areas of frames in which faces are present via pixel-level object segmentation. We performed voice activity detection using Mel-frequency cepstral coefficients and support vector machines (sklearn.svm.SVC) to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
+            We are also in the process of implementing EfficientNet combined with a Vision Transformer (ViT) [10]. We pivoted from our original decision to implement a model solely based on ViTs owing to the need to capture localized information in video frames. In particular, we chose to use EfficientNet owing to the ability of convolutional neural networks to detect patch abnormalities in frames. EfficientNet processes the input video frames by extracting features for each 7x7 block in a particular frame. Following linear projection, ViT processes the features for each location generated by EfficientNet. We used the smallest model in the EfficientNet family (EfficientNet B0). We leveraged PyTorch's implementation of this model (torchvision.models.efficientnet_b0) and initialized it with pre-trained weights for the training process. The last few layers of the model were fine-tuned on a subset of the DFDC dataset. The ViT portion of the model was implemented using PyTorch and NumPy. The CLS token is used prior to passing extracted features to the MLP head in order to generate a binary classification score. 
           </p>
           <p>
-            Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model. 
+            The model was trained in a supervised manner using 100 labeled training examples from DFDC, from which 30 frames were extracted per video. The specific hyperparameters used for model training are presented in the following table. The validation and testing sets were also subsets of DFDC. The inference procedure and results are presented in the following section.
+          </p>
+          <table class="styled-table">
+            <tr>
+              <th>Hyperparameter</th>
+              <th>Value</th>
+            </tr>
+            <tr>
+              <td>Batch Size</td>
+              <td>1</td>
+            </tr>
+            <tr>
+              <td>Learning Rate</td>
+              <td>0.001</td>
+            </tr>
+            <tr>
+              <td>Optimizer</td>
+              <td>Adam</td>
+            <tr>
+              <td>Epochs</td>
+              <td>20</td>
+            </tr>
+            <tr>
+              <td>Frames Per Video</td>
+              <td>30</td>
+            </tr>
+            <tr>
+              <td>Image Size</td>
+              <td>224</td>
+            </tr>
+            <tr>
+              <td>Patch Size</td>
+              <td>7</td>
+            </tr>
+            <tr>
+              <td>Number of Heads</td>
+              <td>8</td>
+            </tr>
           </p>
         </div>
       </div>
@@ -229,21 +280,30 @@
           </p>
           <p>
             Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
-            An accuracy score of 59% for a machine learning classification model is a starting point for evaluation. Its adequacy or lack thereof depends on the specific context of the problem, including class distribution and the complexity of the dataset. It's a signal to explore the model's performance further, considering other metrics and possibly adopting strategies for improvement. Always aim to compare this performance against a meaningful baseline and consider the model's accuracy in conjunction with other performance metrics to get a fuller picture of its effectiveness.
-
-		A ROC AUC score of 0.289 suggests that the model is not effectively distinguishing between the classes and is performing significantly worse than a model that makes random guesses. This indicates a need for substantial model review and likely adjustments to either the model, the features used, or the data preprocessing steps.
-
-		Scikit-learn SVM module includes multiple Support Vector Machine algorithms. They include Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification. SVM supports different kernels like linear, polynomial, SGD and many others. We used the default Radial Basis Function (rbf) kernel. C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. We did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. We used the default of 3. Gamma parameter controls kernel coefficient. We used the default value of "scale". There is another possible value "auto". We did not alter to study the impact of that. For completeness, we are listing the other parameters to be tuned, coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties and random_state. All these could be tuned through multiple iterations to get better accuracies from the model.  
-
-	Personal mac compute resource also limited the training data size. Using any cloud offering by getting higher compute resources including more cores and large memory will also reduce the training time and can handle bigger training dataset to improve the accuracies. When we saved the trained model to my disk in pickle format, it was more than 24 GB. It explains how resource sensitive these experiments were. By using high compute machines, the process could be improved significantly. 
-
-
-	First iteration with 100 videos (80%-20% training-test split) 
-		50 real videos and 50 fake videos
-           
-Accuracy Score : 0.5904761904761905
-
           </p>
+            
+          <p>
+            An accuracy score of 59% for a machine learning classification model is a starting point for evaluation. Its adequacy or lack thereof depends on the specific context of the problem, including class distribution and the complexity of the dataset. It's a signal to explore the model's performance further, considering other metrics and possibly adopting strategies for improvement. Always aim to compare this performance against a meaningful baseline and consider the model's accuracy in conjunction with other performance metrics to get a fuller picture of its effectiveness. A ROC AUC score of 0.289 suggests that the model is not effectively distinguishing between the classes and is performing significantly worse than a model that makes random guesses. This indicates a need for substantial model review and likely adjustments to either the model, the features used, or the data preprocessing steps.
+          </p>
+
+          <p>
+            The scikit-learn SVM module includes multiple Support Vector Machine algorithms. They include Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification. SVM supports different kernels like linear, polynomial, SGD and many others. We used the default Radial Basis Function (rbf) kernel. C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. We did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. We used the default of 3. Gamma parameter controls kernel coefficient. We used the default value of "scale". There is another possible value "auto". We did not alter to study the impact of that. For completeness, we are listing the other parameters to be tuned, coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties and random_state. All these could be tuned through multiple iterations to get better accuracies from the model. 
+          </p>
+          <p>
+            Personal laptop compute resources also limited the training data size. Using any cloud offering by getting higher compute resources including more cores and large memory will also reduce the training time and can handle bigger training dataset to improve the accuracies. When we saved the trained model to my disk in pickle format, it was more than 24 GB. It explains how resource sensitive these experiments were. By using high compute machines, the process could be improved significantly. First iteration with 100 videos (80%-20% training-test split) 50 real videos and 50 fake videos 
+            Accuracy Score : 0.5904761904761905
+          </p>
+          <p>
+            For inference for the EfficientNet-ViT model, we used a voting mechanism as discussed by Coccomini et al. [10]. However, rather than grouping scores by actor identifiers, we averaged the ratings on the individual faces in a given video to determine its label. The hard voting approach discussed by Coccomini et al. may be worth exploring for the final project submission [10]. The precision of the model was 0.6364 and the F1 score was 0.7778. The log loss was 0.6769 and the AUC was 0.321. The low precision of the model is likely due to the small training set used for the midterm checkpoint. Additionally, the AUC of 0.321 indicates that the model is currently performing worse than random guessing. The model currently tends toward false positives, which is reflected in the low AUC. The ROC curve and precision-recall curve for the model are shown below. We are confident that training the model on the entire DFDC dataset will help the model better classify negative examples and improve these metrics.
+          </p>
+          <figure>
+            <img src="./static/images/efficientnet_auc.jpg" alt="AUC" style="width:100%">
+            <figcaption>Figure 8 - ROC curve for EfficientNet-ViT</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images/efficientnet_prcurve.jpg" alt="PRC" style="width:100%">
+            <figcaption>Figure 9 - Precision-Recall curve for EfficientNet-ViT</figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -259,7 +319,13 @@ Accuracy Score : 0.5904761904761905
           <h2 class="title is-3">Next Steps</h2>
           <div class="content has-text-justified">
             <p>
-              Some of the next steps we plan to execute is to train a CNN ensemble model with a meta-learner. The new model that we plan to incorporate will require new data preprocessing to fit the models that will be used in the ensemble. The models we plan to train and include in our ensemble will be the InceptionResNetV2 model and the DenseNet121 model [8]. These two models are highly compatible with each other. The InceptionResNetV2 model will handle analyzing the overall image for large incongruencies, whereas the DenseNet121 will look at the image more indepth for subtleties that allude to the video being a deepfake. Once these models are trained, we plan to utilize a meta-learner to efficiently combine the data from the two models to provide an accurate prediction. The model we will be using to complete this will be the LightGBM gradient boosting model [9]. We have decided on this model to its ability to handle large datasets quickly and effectively. Based on this implementation we should be able to provide a CNN ensemble model with a meta learner that has a high accuracy rate. 
+              Our next steps include implementing our third model, the CNN ensemble model with a meta-learner. The new model that we plan to incorporate will require the implementation of the aforementioned data preprocessing techniques as well as a few additional ones in order to modify the input for the models that will be used in the ensemble. The models we plan to train and include in our ensemble will be the InceptionResNetV2 model and the DenseNet121 model [8]. These two models are highly compatible with each other. The InceptionResNetV2 model will handle analyzing the overall image for large incongruencies, whereas the DenseNet121 will look at the image more indepth for subtleties that allude to the video being a deepfake. Once these models are trained, we plan to utilize a meta-learner to efficiently combine the data from the two models to provide an accurate prediction. The model we will be using to complete this will be the LightGBM gradient boosting model [9]. We have decided on this model owing to its ability to handle large datasets quickly and effectively. Based on this implementation, we should be able to provide a CNN ensemble model with a meta learner that performs well on all the discussed metrics.
+            </p>
+            <p>
+              We also plan to implement a convolutional autoencoder to reduce the dimensionality of the data.
+            </p>
+            <p>
+              There are still plenty of improvements to make to the EfficientNet-ViT implementation and training pipeline. Specifically, owing to deadline constraints for the midterm, a very small subset of DFDC was used for training. We plan train the model on PACE ICE using the entire 10GB dataset of videos (and, perhaps, an even larger subset of DFDC) for the final project submission and are confident that this will drastically improve model performance. In addition, the current setup involves passing in the features to the ViT component without any temporal information. We plan to modify the training procedure to incorporate such information so that the ViT can more effectively incorporate long-range dependencies.
             </p>
           </div>
         </div>
@@ -301,6 +367,9 @@ Accuracy Score : 0.5904761904761905
           </p>
           <p>
             [9] Yao, K., Wang, J., Diao, B., & Li, C. (2023). Towards Understanding the Generalization of Deepfake Detectors from a Game-Theoretical View. In Proceedings of the IEEE/CVF International Conference on Computer Vision (pp. 2031-2041).
+          </p>
+          <p>
+            [10] D. A. Coccomini, N. Messina, C. Gennaro, and F. Falchi, “Combining EfficientNet and vision transformers for video deepfake detection,” Image Analysis and Processing - ICIAP 2022, pp. 219-229, 2022. doi:10.1007/978-3-031-06433-3_19 
           </p>
         </div>
       </div>
