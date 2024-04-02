@@ -265,6 +265,15 @@
             <p>
               Some of the next steps we plan to execute is to train a CNN ensemble model with a meta-learner. The new model that we plan to incorporate will require new data preprocessing to fit the models that will be used in the ensemble. The models we plan to train and include in our ensemble will be the InceptionResNetV2 model and the DenseNet121 model [8]. These two models are highly compatible with each other. The InceptionResNetV2 model will handle analyzing the overall image for large incongruencies, whereas the DenseNet121 will look at the image more indepth for subtleties that allude to the video being a deepfake. Once these models are trained, we plan to utilize a meta-learner to efficiently combine the data from the two models to provide an accurate prediction. The model we will be using to complete this will be the LightGBM gradient boosting model [9]. We have decided on this model to its ability to handle large datasets quickly and effectively. Based on this implementation we should be able to provide a CNN ensemble model with a meta learner that has a high accuracy rate. 
             </p>
+            <p>
+							We also plan to utilize stacked denoising autoencoders to yield better representations of the inputs. 
+							Autoencoders are neural nets that are usually trained to reduce the dimensionality of inputs and then use an 
+							inverse transform to recover an output that is as close to the input as possible. This process allows for
+							the learning of a condensed representation of the data. Stacking multiple of these layers improves this process.
+							While autoencoders are usually used to reduce the dimensionality of the dataset, denoising autoencoders 
+							learn a higher dimensional representation. This introduces noise, and denoising autoencoders leverage the 
+							process of reconstructing the input through the noise to gain a better understanding of the data [6].
+            </p>
           </div>
         </div>
       </div>
@@ -306,6 +315,15 @@
           <p>
             [9] K. Yao, J. Wang, B. Diao, and C. Li, “Towards understanding the generalization of deepfake detectors from a game-theoretical view,” 2023 IEEE/CVF International Conference on Computer Vision (ICCV), Oct. 2023. doi:10.1109/iccv51070.2023.00194 
           </p>
+					<p>
+						[11] M. Norton and S. Uryasev, "Maximization of AUC and Buffered AUC in binary classification," Mathematical Programming, vol. 174, no. 1–2, pp. 575–612, Jul. 2018, doi: https://doi.org/10.1007/s10107-018-1312-2.
+					</p>
+					<p>
+						[12] M. Groh , Z. Epstein, C. Firestone, and R. Picard, "Deepfake detection by human crowds, machines, and machine-informed ...," pnas, https://www.pnas.org/doi/10.1073/pnas.2110013119.
+					</p>
+					<p>
+						[13] S. A. Khan and D.-T. Dang-Nguyen, "Deepfake Detection: A Comparative Analysis," arXiv.org e-Print archive, https://arxiv.org/.
+					</p>
         </div>
       </div>
     </div>
