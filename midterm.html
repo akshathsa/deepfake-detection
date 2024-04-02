@@ -182,14 +182,16 @@
             Our final project submission will include three separate methods for data preprocessing. The first method involves the use of Mask R-CNN to detect people in the video. The second method involves the use of convolutional autoencoders to reduce the dimensionality of the data. The third method involves performing data augmentation through minor video transformations that do not constitute deepfakes.
           </p>
           <p>
-            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output of the Mask R-CNN model is shown below.
+            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below.
           </p>
-          <figure>
+          <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <video width="400" height="250" controls>
-              <source src="./static/videos/mask_rcnn.mp4" type="video/mp4">
+              <source src="./static/videos/maskrcnn_before.mp4" type="video/mp4">
             </video>
-          </figure>
-          
+            <video width="400" height="250" controls>
+              <source src="./static/videos/maskrcnn_after.mp4" type="video/mp4">
+            </video>
+          </div>
           <p>
             Our final project submission will include the implementation of three different deepfake classification techniques. The first involves the use of a support vector machine (SVM) trained on features extracted by feature point detectors. The second involves the use of a convolutional neural network (CNN) architecture called EfficientNet combined with a Vision Transformer. We will also implement a CNN ensemble model that utilizes two different CNN architectures combined with a meta-learner.
           </p>
