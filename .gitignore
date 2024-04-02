@@ -161,3 +161,30 @@ cython_debug/
 
 # Miscellaneous
 **.DS_Store
+.vscode/*
+models/vit/cross-efficient-vit/*
+
+# Data
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tif
+*.tiff
+*.heic
+*.JPG
+*.JPEG
+*.PNG
+*.BMP
+*.TIF
+*.TIFF
+*.HEIC
+*.mp4
+*.mov
+*.MOV
+*.avi
+data/*
+*.mp3
+**/checkpoints/*
+*.pth
+models/output/*
