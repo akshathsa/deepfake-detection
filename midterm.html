@@ -235,14 +235,18 @@
           </p>
           <p>
             Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
-
+	<p>	
 		Also got a ROC AUC score of 0.289, which means the model is not distinguishing between the fake and real videos and is not performing better. The model needs better hyper parameters tuning and also need to increase the training dataset size. 
-
-	First iteration with 100 videos (80%-20% training-test split) 
+	</p>
+	<p>
+		With an accuracy of 59%, this SVM classification model is not performing so well. And that's because the number of videos used for training is very limited. When I used 50 videos and split the videos into 80% training (40 videos) and 20% testing (10 videos), the model gave an accuracy of 54.29% When I increased the videos to 60 and split the video dataset to 70% (42 videos) for training an 30% (18 videos) for testing, the accuracy shot up to 59%. This proves with more training data, the accuracy can further shoot up and get closer to acceptable levels. Unfortunately, the training of the SVM model took multiple hours and the Python kernel on my mac started crashing even for 60 videos and hence could not go above this number.  
+	</p>
+		The model is not distinguishing between fake and real classes well, as we can see from ROC AUC score of 0.289. A Log Loss of 0.70 needs a huge improvement as well. Again with the increase in the size of the training dataset, a higher ROC AUC score can be achieved.
+	<p></p>
+		First iteration with 100 videos (80%-20% training-test split) 
 		50 real videos and 50 fake videos
-           
-Accuracy Score : 0.5904761904761905
-
+	</p>  
+		Accuracy Score : 0.5904761904761905
           </p>
         </div>
       </div>
