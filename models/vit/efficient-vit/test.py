@@ -171,7 +171,7 @@ if __name__ == "__main__":
     bar = Bar('Predicting', max=len(videos))
 
     # f = open(opt.dataset + "_" + model_name + "_labels.txt", "w+")
-    f = open("dfdc_" + model_name + "_labels.txt", "w+")
+    f = open(os.path.join(OUTPUT_DIR, f"dfdc_{model_name}_labels.txt"), "w+")
     for index, video in enumerate(videos):
         video_faces_preds = []
         video_name = video_names[index]
@@ -229,6 +229,7 @@ if __name__ == "__main__":
     prcurve = precision_recall_curve(correct_test_labels, custom_round(np.asarray(preds)))
     plt.plot(prcurve[1], prcurve[0])
     plt.savefig(os.path.join(OUTPUT_DIR, model_name + "_" + opt.dataset + "_prcurve.jpg"))
+    plt.cla()
     
     print(model_name, "Test Accuracy:", accuracy, "Log Loss:", loss, "F1", f1)
     print("Precision:", precision, "Recall:", recall)
