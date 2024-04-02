@@ -209,4 +209,3 @@ dependencies:
     - wrapt==1.12.1
     - xmltodict==0.12.0
     - yacs==0.1.8
-prefix: /home/coccomini/miniconda3/envs/deepfakes
