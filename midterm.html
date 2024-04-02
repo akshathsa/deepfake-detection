@@ -193,6 +193,12 @@
           <p>
             Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model. 
           </p>
+	<p>
+	Scikit-learn SVM module includes multiple Support Vector Machine algorithms. They include Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification. SVM supports different kernels like linear, polynomial, SGD and many others. We used the default Radial Basis Function (rbf) kernel. C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. We did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. We used the default of 3. Gamma parameter controls kernel coefficient. We used the default value of "scale". There is another possible value "auto". We did not alter to study the impact of that. For completeness, we are listing the other parameters to be tuned, coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties and random_state. All these could be tuned through multiple iterations to get better accuracies from the model.  
+	</p>
+        <p>
+	Personal mac compute resource also limited the training data size. Using any cloud offering by getting higher compute resources including more cores and large memory will also reduce the training time and can handle bigger training dataset to improve the accuracies. When we saved the trained model to my disk in pickle format, it was more than 24 GB. It explains how resource sensitive these experiments were. By using high compute machines, the process could be improved significantly. 
+	</p>	
         </div>
       </div>
     </div>
@@ -231,11 +237,6 @@
             Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
 
 		Also got a ROC AUC score of 0.289, which means the model is not distinguishing between the fake and real videos and is not performing better. The model needs better hyper parameters tuning and also need to increase the training dataset size. 
-
-		Scikit-learn SVM module includes multiple Support Vector Machine algorithms. They include Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification. SVM supports different kernels like linear, polynomial, SGD and many others. We used the default Radial Basis Function (rbf) kernel. C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. We did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. We used the default of 3. Gamma parameter controls kernel coefficient. We used the default value of "scale". There is another possible value "auto". We did not alter to study the impact of that. For completeness, we are listing the other parameters to be tuned, coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties and random_state. All these could be tuned through multiple iterations to get better accuracies from the model.  
-
-	Personal mac compute resource also limited the training data size. Using any cloud offering by getting higher compute resources including more cores and large memory will also reduce the training time and can handle bigger training dataset to improve the accuracies. When we saved the trained model to my disk in pickle format, it was more than 24 GB. It explains how resource sensitive these experiments were. By using high compute machines, the process could be improved significantly. 
-
 
 	First iteration with 100 videos (80%-20% training-test split) 
 		50 real videos and 50 fake videos
