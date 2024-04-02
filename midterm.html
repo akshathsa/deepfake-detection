@@ -178,6 +178,12 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3">Methods</h2>
         <div class="content has-text-justified">
+
+          <h5 class="title">Support Vector Machine Implementation</h5>
+          <figure>
+            <img src="./static/images/flowchat.png" style="width:100%">
+            <figcaption>Figure 5 - Flowchart of SVM process</figcaption>
+        </figure>
           <p>
             For our first model we plan to utilize is a support vector machine to assist in voice activity detection. Our process will consist of proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we will perform data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we will use convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
           </p>
@@ -235,6 +241,23 @@ Accuracy Score : 0.5904761904761905
   </div>
 </section>
 <!-- End Results and Discussion -->
+
+  <!-- Next Steps -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Next Steps</h2>
+          <div class="content has-text-justified">
+            <p>
+              Some of the next steps we plan to execute is to train a CNN ensemble model with a meta-learner. The new model that we plan to incorporate will require new data preprocessing to fit the models that will be used in the ensemble. The models we plan to train and include in our ensemble will be the InceptionResNetV2 model and the DenseNet121 model [8]. These two models are highly compatible with each other. The InceptionResNetV2 model will handle analyzing the overall image for large incongruencies, whereas the DenseNet121 will look at the image more indepth for subtleties that allude to the video being a deepfake. Once these models are trained, we plan to utilize a meta-learner to efficiently combine the data from the two models to provide an accurate prediction. The model we will be using to complete this will be the LightGBM gradient boosting model [9]. We have decided on this model to its ability to handle large datasets quickly and effectively. Based on this implementation we should be able to provide a CNN ensemble model with a meta learner that has a high accuracy rate. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End Next Steps -->
   
    <!-- References -->
 <section class="section hero is-light">
@@ -264,6 +287,12 @@ Accuracy Score : 0.5904761904761905
           <p>
             [7] T. Kinnunen, E. Chernenko, M. Tuononen, P. Fränti, and H. Li, "Voice Activity Detection Using MFCC Features and Support Vector Machine," Semantic Scholar, 2007. https://www.semanticscholar.org/paper/Voice-Activity-Detection-Using-MFCC-Features-and-Kinnunen-Chernenko/a31eeed2b395e923d3c077d5fedbecfd7f381dd2.
           </p>
+          <p>
+            [8] Rana, M.S., & Sung, A.H. (2020). DeepfakeStack: A Deep Ensemble-based Learning Technique for Deepfake Detection. 2020 7th IEEE International Conference on Cyber Security and Cloud Computing (CSCloud)/2020 6th IEEE International Conference on Edge Computing and Scalable Cloud (EdgeCom), 70-75.
+          </p>
+          <p>
+            [9] Yao, K., Wang, J., Diao, B., & Li, C. (2023). Towards Understanding the Generalization of Deepfake Detectors from a Game-Theoretical View. In Proceedings of the IEEE/CVF International Conference on Computer Vision (pp. 2031-2041).
+          </p>
         </div>
       </div>
     </div>
@@ -288,19 +317,19 @@ Accuracy Score : 0.5904761904761905
   </tr>
   <tr>
     <td>Shaam Bala</td>
-    <td>Introduction, Methods, Slides</td>
+    <td>Introduction, Problem description, Methods, Next Steps, Visualizations, CNN Ensemble Model with meta-learner implementation</td>
   </tr>
     <tr>
     <td>Akaash Parthasarathy</td>
-    <td>Methods, Slides</td>
+    <td>Methods, MaskRCNN</td>
   </tr>
     <tr>
     <td>Akshath Shvetang Anna</td>
-    <td>Metrics, Project Goal, Intro, Slides</td>
+    <td>Next Steps, Autoencoders</td>
   </tr>
     <tr>
     <td>Harish Rajan</td>
-    <td>Metrics, Project Goal, Results, Slides</td>
+    <td> Full Implementation of SVM with Data Preprocessing and Data Visualization, Results and Discussion for SVM</td>
   </tr>
 </table>
       </div>
