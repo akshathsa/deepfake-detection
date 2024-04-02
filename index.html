@@ -43,6 +43,38 @@
   <script src="static/js/bulma-carousel.min.js"></script>
   <script src="static/js/bulma-slider.min.js"></script>
   <script src="static/js/index.js"></script>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<style>
+
+		.navbar {
+			background-color: #333;
+			overflow: hidden;
+			display: flex;
+    	justify-content: center;
+		}
+
+		.navbar a {
+			color: white;
+			text-decoration: none;
+			padding: 15px 40px;
+			display: block;
+			text-align: center;
+		}
+
+		.navbar a:hover {
+			background-color: #2a2a2a;
+		}
+
+		.navbar li {
+			float: left;
+		}
+
+		.navbar a.active {
+			background-color: rgb(108, 108, 108);
+		}
+	</style>
 </head>
 <body>
 	<section class="hero">
@@ -50,7 +82,7 @@
 			<div class="container is-max-desktop">
 				<div class="columns is-centered">
 					<div class="column has-text-centered">
-						<h1 class="title is-1 publication-title">Team 6 Project Proposal</h1>
+						<h1 class="title is-1 publication-title">Team 6 CS 7641 Project: Deepfake Detection</h1>
 						<div class="is-size-5 publication-authors">
 							<!-- Paper authors -->
 							<span class="author-block">
@@ -91,9 +123,10 @@
 	</section>
 
 	<nav class="navbar">
-			<a href="#" onclick="loadContent('proposal.html')">Proposal</a>
-			<a href="#" onclick="loadContent('midterm.html')">Midterm</a>
-			<!-- <a href="#" onclick="loadContent('final.html')">Final</a> -->
+		<ul>
+			<li><a href="#" onclick="loadContent('midterm.html')">Midterm</a></li>
+			<li><a href="#" onclick="loadContent('proposal.html')">Proposal</a></li>
+		</ul>	
 	</nav>
 
 	<!-- Include an iframe into which we can load the content of the relevant page -->
@@ -113,6 +146,21 @@
 							iframe.height(iframe.contents().find('body')[0].scrollHeight);
 					});
 			}
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			loadContent('midterm.html');	
+
+			$('.navbar a:contains("Midterm")').addClass('active');
+			
+			$('.navbar a').click(function() {
+						// Remove the 'active' class from all links
+						$('.navbar a').removeClass('active');
+						// Add the 'active' class to the clicked link
+						$(this).addClass('active');
+				});
+		});
 	</script>
 
 
