@@ -74,6 +74,8 @@ def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
 
         if args.show_labels:
             cv2.putText(image, f'{classes[label]}: {score:.2f}', (int(box[0]), int(box[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, colors[label], args.text_thickness)
+
+        image = image[int(box[1]):int(box[3]),int(box[0]):int(box[2])]
     
     ret, thresh = cv2.threshold(cv2.cvtColor(image,cv2.COLOR_BGR2GRAY), 220, 255, cv2.THRESH_BINARY)
     if args.hide_boxes: # if not showing boxes, make non-masked areas black

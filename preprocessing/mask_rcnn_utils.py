@@ -31,6 +31,8 @@ if torch.cuda.is_available():
 
 def mask_rcnn_inference():
     for dir in os.listdir(args.data_folder):
+        if not os.path.isdir(f'{args.data_folder}/{dir}') and not dir.endswith('45'):
+            continue
         for video in os.listdir(f'{args.data_folder}/{dir}'):
             print(f'Processing {video}')
             
