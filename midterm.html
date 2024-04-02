@@ -185,13 +185,13 @@
             <figcaption>Figure 5 - Flowchart of SVM process</figcaption>
         </figure>
           <p>
-            For our first model we plan to utilize is a support vector machine to assist in voice activity detection. Our process will consist of proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we will perform data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we will use convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
+            For our first model we utilized a support vector machine to assist in voice activity detection. Our process consisted of proposed architectures for deepfake generation through imperfections introduced by image transformations [5]. Consequently, we performed data augmentation on existing videos to enable our model to better identify such deepfakes. To reduce the feature space, we used convolutional autoencoders to enable our model to focus on compressed video representations that retain relevant features [6].
           </p>
           <p>
-            To reduce dataset size, we will utilize Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN) to detect areas of frames in which faces are present via pixel-level object segmentation. We will perform voice activity detection using Mel-frequency cepstral coefficients and support vector machines (sklearn.svm.SVC) to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
+            To reduce dataset size, we utilized Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN) to detect areas of frames in which faces are present via pixel-level object segmentation. We performed voice activity detection using Mel-frequency cepstral coefficients and support vector machines (sklearn.svm.SVC) to identify segments of videos containing speech (parts containing silence will not likely improve classification ability) [7].
           </p>
           <p>
-            Once we have completed we created a visualization to better illustrate the steps and our data processing. We incorporated a flow chart that shows the process of the data preprocessing to feeding the information into the model. 
+            Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model. 
           </p>
         </div>
       </div>
