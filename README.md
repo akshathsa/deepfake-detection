@@ -9,8 +9,10 @@
 
 /models/: Directory containing model implementations<br>
 
+/models/svm: Directory containing implementation of SVM model for deepfake classification.<br>
 /models/svm/svm-classification.ipynb: Jupyter notebook that includes video feature extraction steps and SVM model implementation for deepfake classification. Additionally includes code for calculating model performance on metrics discussed in the results section of the midterm checkpoint and visualizations based on these metrics.
 
+/models/vit/: Directory containing EfficientNet-ViT model implementation and environment creation file.<br>
 /models/vit/efficient-vit/: Directory containing implementation of EfficientNet-ViT model for deepfake classification.<br>
 /models/vit/environment.yml: Environment file to create conda environment for training and testing.<br>
 /models/vit/efficient-vit/efficient_vit.py: Contains implementation of EfficientNet-ViT model using PyTorch's out-of-the-box implementation of EfficientNet and a transformer implementation using PyTorch and NumPy.<br>
