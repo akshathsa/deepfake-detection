@@ -9,3 +9,6 @@ svm-classification.ipynb is a notebook which includes steps to perform extractin
  
 
 
+/dataviz.ipynb : Jupyter notebook containing code for the data visualizations <br>
+/haarcascade_frontalface_default.xml : xml file containing the haar cascade face detection model
+
