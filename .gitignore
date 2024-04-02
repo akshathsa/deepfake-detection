@@ -168,7 +168,8 @@ cython_debug/
 
 # Miscellaneous
 **.DS_Store
-preprocessing/*
+.vscode/*
+models/vit/cross-efficient-vit/*
 
 # Data
 *.jpg
@@ -190,3 +191,7 @@ preprocessing/*
 *.MOV
 *.avi
 data/*
+*.mp3
+**/checkpoints/*
+*.pth
+models/output/*
