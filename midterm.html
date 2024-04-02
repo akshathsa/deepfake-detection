@@ -181,17 +181,18 @@
           <p>
             Our final project submission will include three separate methods for data preprocessing. The first method involves the use of Mask R-CNN to detect people in the video. The second method involves the use of convolutional autoencoders to reduce the dimensionality of the data. The third method involves performing data augmentation through minor video transformations that do not constitute deepfakes.
           </p>
-          <p>
-            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below.
-          </p>
+          <h5 class="title">Mask R-CNN Implementation</h5>
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <video width="400" height="250" controls>
               <source src="./static/videos/maskrcnn_before.mp4" type="video/mp4">
             </video>
-            <video width="400" height="250" controls>
+            <video width="200" height="125" controls>
               <source src="./static/videos/maskrcnn_after.mp4" type="video/mp4">
             </video>
           </div>
+          <p>
+            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below. The video on the left is the original video, and the video on the right is the output of the Mask R-CNN model. On this particular video, the Mask R-CNN model yielded a 75% reduction in size.
+          </p>
           <p>
             Our final project submission will include the implementation of three different deepfake classification techniques. The first involves the use of a support vector machine (SVM) trained on features extracted by feature point detectors. The second involves the use of a convolutional neural network (CNN) architecture called EfficientNet combined with a Vision Transformer. We will also implement a CNN ensemble model that utilizes two different CNN architectures combined with a meta-learner.
           </p>
@@ -204,8 +205,9 @@
             For our first model, we utilized a support vector machine. Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model.
           </p>
           <p>
-            The scikit-learn SVM module includes multiple Support Vector Machine algorithms. They include Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification. SVM supports different kernels like linear, polynomial, SGD and many others. We used the default Radial Basis Function (rbf) kernel. C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and categorizing the training sample more accurately. We did not try multiple experiments to train the model and study the output accuracies. There are numerous other parameters like degree, which limits the degree of the polynomial kernel function. We used the default of 3. The gamma parameter controls kernel coefficient. We used the default value of "scale". There is another possible value "auto". We did not alter to study the impact of that. For completeness, we are listing the other parameters to be tuned: coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties, and random_state. All these could be tuned through multiple iterations to get better results from the model.  
+            The scikit-learn SVM module includes multiple Support Vector Machine algorithms such as Linear SVM, Nu-Spport Vector and C-Support Vector classification. We chose to use C-Support Vector classification with a radial basis function (RBF) kernel for our implementation. The C parameter is a regularization parameter and can be tuned to manage the trade-off between smooth transition boundaries and accurate categorization of training samples. There are several other hyperparameters such as degree, which limit the degree of the polynomial kernel function. We used the default value of 3 for degree. We used the default value of "scale" for the gamma hyperparameter, which controls the kernel coefficient. For completeness, the other model hyperparameters that can be tuned include coef0, shrinking, tol, cache_size, class_weight, max_iter, decision_function_shape, break_ties, and random_state. The results of the model are presented in the following section.
           </p>
+          <h5 class="title">EfficientNet-ViT Implementation</h5>
           <p>
             We are also in the process of implementing EfficientNet combined with a Vision Transformer (ViT) [10]. We pivoted from our original decision to implement a model solely based on ViTs owing to the need to capture localized information in video frames. In particular, we chose to use EfficientNet owing to the ability of convolutional neural networks to detect patch abnormalities in frames. EfficientNet processes the input video frames by extracting features for each 7x7 block in a particular frame. Following linear projection, ViT processes the features for each location generated by EfficientNet. We used the smallest model in the EfficientNet family (EfficientNet B0). We leveraged PyTorch's implementation of this model (torchvision.models.efficientnet_b0) and initialized it with pre-trained weights for the training process. The last few layers of the model were fine-tuned on a subset of the DFDC dataset. The ViT portion of the model was implemented using PyTorch and NumPy. The CLS token is used prior to passing extracted features to the MLP head in order to generate a binary classification score. 
           </p>
@@ -264,44 +266,32 @@
         <h2 class="title is-3">Results and Discussion</h2>
         <div class="content has-text-justified">
           <p>
-            Based on how widely various metrics are used for this task, we have chosen the following metrics [2]:
+            Based on how widely various metrics are used for this task, we have chosen the following metrics to evaluate model performance [2]:
           </p>
           <ol>
             <li>Area under the ROC curve evaluates binary classifier performance across different classification thresholds [1]. It also quantifies how well the model can differentiate classes [11].</li>
             <li>Precision measures the proportion of positive results within the positive predictions, ensuring that there are few false positives [12]. </li>
             <li>Log loss increases as predictive probability diverges from the actual label [13].</li>
           </ol>
-	<figure>
-          <img src="./static/images/ROC-SVM.png" alt="ROC" style="width:100%">
-          <figcaption>Figure 6 - ROC curve for SVM</figcaption>
-        </figure>
-
-	<figure>
-          <img src="./static/images/confusion-matrix-svm.png" alt="confusion-matrix" style="width:100%">
-          <figcaption>Figure 7 - Confusion-Matrix for SVM</figcaption>
-        </figure>	
           <p>
             Goal: We aim to detect whether a video is a deepfake accurately by maximizing the first two metrics and minimizing the third.
           </p>
           <p>
             Results: This project expects high accuracy rates and reduction of false positives, where genuine videos are classified as deep fakes. We expect to minimize false negatives, where deepfakes are misclassified as genuine videos.
-          <p>	
-            Also got a ROC AUC score of 0.289, which means the model is not distinguishing between the fake and real videos and is not performing better. The model needs better hyper parameters tuning and also need to increase the training dataset size. 
-          </p>
+          </p>	
+          <h5 class="title">SVM Results</h5>
+          <figure>
+            <img src="./static/images/ROC-SVM.png" alt="ROC" style="width:100%">
+            <figcaption>Figure 6 - ROC curve for SVM</figcaption>
+          </figure>
+          <figure>
+            <img src="./static/images/confusion-matrix-svm.png" alt="confusion-matrix" style="width:100%">
+            <figcaption>Figure 7 - Confusion-Matrix for SVM</figcaption>
+          </figure>	
           <p>
-            With an accuracy of 59%, this SVM classification model is not performing so well. And that's because the number of videos used for training is very limited. When I used 50 videos and split the videos into 80% training (40 videos) and 20% testing (10 videos), the model gave an accuracy of 54.29% When I increased the videos to 60 and split the video dataset to 70% (42 videos) for training an 30% (18 videos) for testing, the accuracy shot up to 59%. This proves with more training data, the accuracy can further shoot up and get closer to acceptable levels. Unfortunately, the training of the SVM model took multiple hours and the Python kernel on my mac started crashing even for 60 videos and hence could not go above this number.  
+            We achieved an AUC of 0.289 and a log loss of 0.70. The low AUC suggests the model cannot distinguish between fake and real videos. This is additionally demonstrated in the confusion matrix. The model is not yet performing well since the accuracy is only 59%. The model requires further hyperparameter tuning and an increase in the training dataset size. For instance, when we used 50 videos and split them into 80% training (40 training videos) and 20% testing, the model produced an accuracy of 54.29%. However, when we increased the number of training videos to 60 and split the dataset to 70% training (42 training videos) and 30% testing, the accuracy shot up to 59%. This shows that with even a slight increase in training data, the accuracy improves drastically.
           </p>
-          <p>
-		        The model is not distinguishing between fake and real classes well, as we can see from ROC AUC score of 0.289. A Log Loss of 0.70 needs a huge improvement as well. Again with the increase in the size of the training dataset, a higher ROC AUC score can be achieved.
-          </p>
-		      <p>
-            First iteration with 100 videos (80%-20% training-test split) 
-		        50 real videos and 50 fake videos
-            Accuracy Score : 0.5904761904761905
-          </p>
-          <p>
-            For inference for the EfficientNet-ViT model, we used a voting mechanism as discussed by Coccomini et al. [10]. However, rather than grouping scores by actor identifiers, we averaged the ratings on the individual faces in a given video to determine its label. The hard voting approach discussed by Coccomini et al. may be worth exploring for the final project submission [10]. The precision of the model was 0.6364 and the F1 score was 0.7778. The log loss was 0.6769 and the AUC was 0.321. The low precision of the model is likely due to the small training set used for the midterm checkpoint. Additionally, the AUC of 0.321 indicates that the model is currently performing worse than random guessing. The model currently tends toward false positives, which is reflected in the low AUC. The ROC curve and precision-recall curve for the model are shown below. We are confident that training the model on the entire DFDC dataset will help the model better classify negative examples and improve these metrics.
-          </p>
+          <h5 class="title">EfficientNet-ViT Results</h5>
           <figure>
             <img src="./static/images/efficientnet_auc.jpg" alt="AUC" style="width:100%">
             <figcaption>Figure 8 - ROC curve for EfficientNet-ViT</figcaption>
@@ -310,6 +300,9 @@
             <img src="./static/images/efficientnet_prcurve.jpg" alt="PRC" style="width:100%">
             <figcaption>Figure 9 - Precision-Recall curve for EfficientNet-ViT</figcaption>
           </figure>
+          <p>
+            For inference for the EfficientNet-ViT model, we used a voting mechanism as discussed by Coccomini et al. [10]. However, rather than grouping scores by actor identifiers, we averaged the ratings on the individual faces in a given video to determine its label. The hard voting approach discussed by Coccomini et al. may be worth exploring for the final project submission [10]. The precision of the model was 0.6364 and the F1 score was 0.7778. The log loss was 0.6769 and the AUC was 0.321. The low precision of the model is likely due to the small training set used for the midterm checkpoint. Additionally, the AUC of 0.321 indicates that the model is currently performing worse than random guessing. The model currently tends toward false positives, which is reflected in the low AUC. The ROC curve and precision-recall curve for the model are shown below. We are confident that training the model on the entire DFDC dataset will help the model better classify negative examples and improve these metrics.
+          </p>
         </div>
       </div>
     </div>
@@ -331,10 +324,10 @@
 							We also plan to utilize stacked denoising autoencoders to yield better representations of the inputs. Autoencoders are neural nets that are usually trained to reduce the dimensionality of inputs and then use an inverse transform to recover an output that is as close to the input as possible. This process allows for the learning of a condensed representation of the data. Stacking multiple of these layers improves this process. While autoencoders are usually used to reduce the dimensionality of the dataset, denoising autoencoders learn a higher dimensional representation. This introduces noise, and denoising autoencoders leverage the process of reconstructing the input through the noise to gain a better understanding of the data [6].
             </p>
             <p>
-              As far as the SVM implementation goes, personal MacBook compute resources limited the training data size. Using PACE ICE will  reduce the training time and allow the model to handle a larger training dataset to improve its performance. When we saved the trained model to disk in pickle format, it occupied more than 24 GB. This explains how resource intensive these experiments were. By using dedicated compute machines, the process could be hastened significantly. 
+              As far as the SVM implementation goes, personal compute resources limited the training data size. Using PACE ICE will reduce the training time and allow the model to handle a larger training dataset to improve its performance. When we saved the trained model to disk in pickle format, it occupied more than 24 GB. This explains how resource intensive these experiments were. By using dedicated compute machines, the process could be hastened significantly. 
             </p>
             <p>
-              There are still plenty of improvements to make to the EfficientNet-ViT implementation and training pipeline. Specifically, owing to deadline constraints for the midterm, a very small subset of DFDC was used for training. We plan train the model on PACE ICE using the entire 10GB dataset of videos (and, perhaps, an even larger subset of DFDC) for the final project submission and are confident that this will drastically improve model performance. In addition, the current setup involves passing in the features to the ViT component without any temporal information. We plan to modify the training procedure to incorporate such information so that the ViT can more effectively incorporate long-range dependencies.
+              There are also plenty of improvements to make to the EfficientNet-ViT implementation and training pipeline. Specifically, owing to deadline constraints for the midterm, a very small subset of DFDC was used for training. We plan to train this model on PACE ICE as well using the entire 10GB dataset of videos (and, perhaps, an even larger subset of DFDC) for the final project submission and are confident that this will drastically improve model performance. In addition, the current setup involves passing in the features to the ViT component without any temporal information. We plan to modify the training procedure to incorporate such information so that the ViT can more effectively incorporate long-range dependencies.
             </p>
           </div>
         </div>
@@ -414,15 +407,15 @@
   </tr>
     <tr>
     <td>Akaash Parthasarathy</td>
-    <td>Methods, MaskRCNN</td>
+    <td>Methods, Next Steps, EfficientNet-ViT Implementation and Discussion, Mask R-CNN Implementation</td>
   </tr>
     <tr>
     <td>Akshath Shvetang Anna</td>
-    <td>Next Steps, Autoencoders</td>
+    <td>Next Steps, Autoencoders Implementation</td>
   </tr>
     <tr>
     <td>Harish Rajan</td>
-    <td> Full Implementation of SVM with Data Preprocessing and Data Visualization, Results and Discussion for SVM</td>
+    <td> SVM Implementation and Visualizations, Results and Discussion for SVM</td>
   </tr>
 </table>
       </div>
