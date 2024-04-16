@@ -1,13 +1,15 @@
 training:
   lr: 0.001
   weight-decay: 0.0000001
-  bs: 1
+  bs: 32
   scheduler: 'steplr'
   gamma: 0.1
   step-size: 15
   rebalancing_fake: 0.3
   rebalancing_real: 1
   frames-per-video: 30 # Equidistant frames
+  save-frequency: 10
+  patience: 10
   
 model:
   image-size: 224

@@ -25,7 +25,7 @@ from transforms.albu import IsotropicResize
 import glob
 import pandas as pd
 from tqdm import tqdm
-from utils import train_parse, get_method, check_correct, resize, shuffle_dataset, get_n_params, train_val_split, video_to_frames
+from utils import train_parse, get_method, check_correct, resize, shuffle_dataset, get_n_params, train_val_test_split, video_to_frames
 from sklearn.utils.class_weight import compute_class_weight 
 from torch.optim.lr_scheduler import LambdaLR
 import collections
@@ -35,7 +35,10 @@ import yaml
 import argparse
 import pickle
 
-BASE_DIR = '/Users/akaashrp/Desktop/GT_Classwork/Spring_2024/CS_7641/deepfake-detection/'
+import joblib
+from joblib import Parallel, delayed
+
+BASE_DIR = '/storage/ice1/2/3/arp9/deepfake-detection/'
 DATA_DIR = os.path.join(BASE_DIR, "data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
@@ -51,6 +54,7 @@ def load_dataset(filename):
         return pickle.load(f)
 
 def read_frames(video_path, train_dataset, validation_dataset):
+    print(f"Processing video {os.path.basename(video_path)}")
     if TRAINING_DIR in video_path:
         train_df = pd.DataFrame(pd.read_csv(TRAIN_LABELS_PATH))
         video_folder_name = os.path.basename(video_path)
@@ -71,6 +75,9 @@ def read_frames(video_path, train_dataset, validation_dataset):
                 train_dataset.append((image, label))
             else:
                 validation_dataset.append((image, label))
+
+def read_frames_wrapper(path, train_dataset, validation_dataset):
+    return read_frames(path, train_dataset, validation_dataset)
 
 if __name__ == "__main__":
     opt = train_parse()
@@ -107,8 +114,8 @@ if __name__ == "__main__":
     #     folders = ["Original", "DFDC", "Deepfakes", "Face2Face", "FaceShifter", "FaceSwap", "NeuralTextures"]
     
     mgr = Manager()
-    if not os.path.exists(os.path.join(DATA_DIR, "train.pkl")) or not os.path.exists(os.path.join(DATA_DIR, "val.pkl")):
-        train_val_split(DATA_DIR, TRAINING_DIR, VALIDATION_DIR, 0.8)
+    if not os.path.exists(os.path.join(DATA_DIR, "train.joblib")) or not os.path.exists(os.path.join(DATA_DIR, "val.joblib")):
+        train_val_test_split(DATA_DIR, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, 0.8, 0.1, 0.1)
         sets = [TRAINING_DIR, VALIDATION_DIR]
 
         print("Extracting frames from videos...")
@@ -145,40 +152,48 @@ if __name__ == "__main__":
         train_dataset = mgr.list()
         validation_dataset = mgr.list()
 
-        # with Pool(processes=opt.workers) as p:
-        #     with tqdm(total=len(paths)) as pbar:
-        #         for v in p.imap_unordered(partial(read_frames, train_dataset=train_dataset, validation_dataset=validation_dataset), paths):
-        #             pbar.update()
-
-        #     p.terminate()
+        # train_dataset = []
+        # validation_dataset = []
 
         with Pool(processes=opt.workers) as p:
             with tqdm(total=len(paths)) as pbar:
-                # for path in paths:
-                #     result = read_frames(path, train_dataset=train_dataset, validation_dataset=validation_dataset)
-                #     pbar.update()
                 for v in p.imap_unordered(partial(read_frames, train_dataset=train_dataset, validation_dataset=validation_dataset), paths):
                     pbar.update()
 
-                pbar.close()
-                p.terminate()
+            p.terminate()
+
+        # with tqdm(total=len(paths)) as pbar:
+        #     for path in paths:
+        #         result = read_frames(path, train_dataset=train_dataset, validation_dataset=validation_dataset)
+        #         pbar.update()
+            
+        #     pbar.close()
+        
+        # with tqdm(total=len(paths)) as pbar:
+        #     with Parallel(n_jobs=opt.workers) as parallel:
+        #         results = parallel(delayed(read_frames_wrapper)(path, train_dataset, validation_dataset) for path in paths)
+        #         for _ in results:  # Update progress bar for each completed task
+        #             pbar.update()
         
         train_dataset = shuffle_dataset(train_dataset)
-        print(type(train_dataset))
         validation_dataset = shuffle_dataset(validation_dataset)
         train_samples = len(train_dataset)
         validation_samples = len(validation_dataset)
-    else:
-        # with open(os.path.join(DATA_DIR, "train.pkl"), "rb") as f:
-        #     print(f)
-        #     train_dataset = pickle.load(f)
-        # with open(os.path.join(DATA_DIR, "val.pkl"), "rb") as f:
-        #     validation_dataset = pickle.load(f)
 
-        train_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/train.pkl"])
-        train_dataset = train_dataset_getter()
-        validation_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/val.pkl"])
-        validation_dataset = validation_dataset_getter()
+        # with open(os.path.join(DATA_DIR, "train.joblib"), "wb") as f:
+        #     joblib.dump(train_dataset, f, compress=1)
+        # with open(os.path.join(DATA_DIR, "val.joblib"), "wb") as f:
+        #     joblib.dump(validation_dataset, f, compress=1)
+    else:
+        # with open(os.path.join(DATA_DIR, "train.joblib"), "rb") as f:
+        #     train_dataset = joblib.load(f)
+        # with open(os.path.join(DATA_DIR, "val.joblib"), "rb") as f:
+        #     validation_dataset = joblib.load(f)
+
+        # train_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/train.pkl"])
+        # train_dataset = train_dataset_getter()
+        # validation_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/val.pkl"])
+        # validation_dataset = validation_dataset_getter()
         
         train_samples = len(train_dataset)
         validation_samples = len(validation_dataset)
@@ -226,7 +241,7 @@ if __name__ == "__main__":
     not_improved_loss = 0
     previous_loss = math.inf
     for t in range(starting_epoch, opt.num_epochs + 1):
-        if not_improved_loss == opt.patience:
+        if not_improved_loss == config["training"]["patience"]:
             break
         counter = 0
 
@@ -305,4 +320,6 @@ if __name__ == "__main__":
     
         if not os.path.exists(MODELS_PATH):
             os.makedirs(MODELS_PATH)
-        torch.save(model.state_dict(), os.path.join(MODELS_PATH,  "efficientnetB"+str(opt.efficient_net)+"_checkpoint" + str(t) + "_" + opt.dataset))
+        if t % config["training"]["save-frequency"] == 0:
+            torch.save(model.state_dict(), os.path.join(MODELS_PATH, "efficientnetB"+str(opt.efficient_net)+"_checkpoint"))
+            
