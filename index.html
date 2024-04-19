@@ -129,6 +129,7 @@
 
 	<nav class="navbar">
 		<ul>
+			<li><a href="#" onclick="loadContent('final.html')">Final</a></li>
 			<li><a href="#" onclick="loadContent('midterm.html')">Midterm</a></li>
 			<li><a href="#" onclick="loadContent('proposal.html')">Proposal</a></li>
 		</ul>	
@@ -155,9 +156,9 @@
 
 	<script>
 		$(document).ready(function() {
-			loadContent('midterm.html');	
+			loadContent('final.html');	
 
-			$('.navbar a:contains("Midterm")').addClass('active');
+			$('.navbar a:contains("Final")').addClass('active');
 			
 			$('.navbar a').click(function() {
 						// Remove the 'active' class from all links
