@@ -178,8 +178,9 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3">Methods</h2>
         <div class="content has-text-justified">
+          <h4 class="title">Data Preprocessing</h4>
           <p>
-            Our final project submission will include three separate methods for data preprocessing. The first method involves the use of Mask R-CNN to detect people in the video. The second method involves the use of convolutional autoencoders to reduce the dimensionality of the data. The third method involves performing data augmentation through minor video transformations that do not constitute deepfakes.
+            We implemented two different methods for pre-processing. The first method involves the use of Mask R-CNN to detect people in the video. The second method involves the use of convolutional autoencoders to reduce the dimensionality of the data. We did not end up using data augmentation for pre-processing the videos since we arrived at the conclusion that it did not significantly improve the performance of the models.
           </p>
           <h5 class="title">Mask R-CNN Implementation</h5>
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
@@ -192,10 +193,15 @@
           </div>
           <br>
           <p>
-            For the midterm checkpoint, we have implemented the first of these pre-processing techniques. To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below. The video on the left is the original video, and the video on the right is the output of the Mask R-CNN model. On this particular video, the Mask R-CNN model yielded a 75% reduction in size.
+            To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below. The video on the left is the original video, and the video on the right is the output of the Mask R-CNN model. On this particular video, the Mask R-CNN model yielded a 75% reduction in size. For simplicity, our current Mask R-CNN implementation is configured to detect only a single person in each frame. A potential improvement would be to configure the model to detect multiple people in each frame and modify our models to handle this additional information and make more informed decisions.
           </p>
+          <h5 class="title">Convolutional Autoencoder Implementation</h5>
           <p>
-            Our final project submission will include the implementation of three different deepfake classification techniques. The first involves the use of a support vector machine (SVM) trained on features extracted by feature point detectors. The second involves the use of a convolutional neural network (CNN) architecture called EfficientNet combined with a Vision Transformer. We will also implement a CNN ensemble model that utilizes two different CNN architectures combined with a meta-learner.
+            We also implemented a convolutional autoencoder to reduce the dimensionality of the data. 
+          </p>
+          <h4 class="title">Deepfake Classification Models</h4>
+          <p>
+            We implemented three different deepfake classification techniques. The first involves the use of a support vector machine (SVM) trained on features extracted by feature point detectors. The second involves the use of a convolutional neural network (CNN) architecture called EfficientNet combined with a Vision Transformer. We will also implement a CNN ensemble model that utilizes two different CNN architectures combined with a meta-learner.
           </p>
           <h5 class="title">Support Vector Machine Implementation</h5>
           <figure>
@@ -210,7 +216,7 @@
           </p>
           <h5 class="title">EfficientNet-ViT Implementation</h5>
           <p>
-            We are also in the process of implementing EfficientNet combined with a Vision Transformer (ViT) [6]. We pivoted from our original decision to implement a model solely based on ViTs owing to the need to capture localized information in video frames. In particular, we chose to use EfficientNet owing to the ability of convolutional neural networks to detect patch abnormalities in frames. EfficientNet processes the input video frames by extracting features for each 7x7 block in a particular frame. Following linear projection, ViT processes the features for each location generated by EfficientNet [6]. We used the smallest model in the EfficientNet family (EfficientNet B0). We leveraged PyTorch's implementation of this model (torchvision.models.efficientnet_b0) and initialized it with pre-trained weights for the training process. The last few layers of the model were fine-tuned on a subset of the DFDC dataset. The ViT portion of the model was implemented using PyTorch and NumPy. The CLS token is used prior to passing extracted features to the MLP head in order to generate a binary classification score.
+            The second model we implemented is EfficientNet combined with a Vision Transformer (ViT) [6]. We pivoted from our original decision to implement a model solely based on ViTs owing to the need to capture localized information in video frames. We chose to use EfficientNet owing to the ability of convolutional neural networks to detect patch abnormalities in frames. EfficientNet processes the input video frames by extracting features for each 7x7 block in a particular frame. Following linear projection, ViT processes the features for each location generated by EfficientNet [6]. We used the smallest model in the EfficientNet family (EfficientNet B0). We leveraged PyTorch's implementation of this model (torchvision.models.efficientnet_b0) and initialized it with pre-trained weights for the training process. The last few layers of the model were fine-tuned on a subset of the DFDC dataset. The ViT portion of the model was implemented using PyTorch and NumPy. The CLS token is used prior to passing extracted features to the MLP head in order to generate a binary classification score.
           </p>
           <p>
             The model was trained in a supervised manner using 100 labeled training examples from DFDC, from which 30 frames were extracted per video. The specific hyperparameters used for model training are presented in the following table. The validation and testing sets were also subsets of DFDC. The inference procedure and results are presented in the following section.
