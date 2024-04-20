@@ -25,9 +25,9 @@ def mask_rcnn_parse():
     parser.add_argument("--mask-threshold",default=0.5,type=float,help="confidence threshold for segmentation mask (0-1)")
     parser.add_argument("--max-detections",default=0,type=int,help="maximum concurrent detections (leave 0 for unlimited)")
     parser.add_argument("--data-folder","--data","-d",default="data",help="data directory")
+    parser.add_argument("--skip-frames",default=1,type=int,help="skip frames (1 for no skip)")
     output_group.add_argument("--hide-output",action="store_true",help="do not show output")
     output_group.add_argument("--display-title",default="Mask-RCNN",help="window title")
-    output_group.add_argument("--skip-frames",default=1,type=int,help="skip frames (1 for no skip)")
     boxes_group.add_argument("--hide-boxes",action="store_true",help="do not show bounding boxes")
     masks_group.add_argument("--hide-masks",action="store_true",help="do not show segmentation masks")
     labels_group.add_argument("--show-labels",action="store_true",help="show labels")
@@ -45,7 +45,10 @@ def mask_rcnn_parse():
 
 def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
     # feed forward the image
-    output = model(torch.tensor(np.expand_dims(image,axis=0)).permute(0,3,1,2) / 255)[0]
+    if torch.cuda.is_available():
+        input = (torch.tensor(np.expand_dims(image,axis=0)).permute(0,3,1,2) / 255)
+        output = model(input)[0]
+    
     cover = np.zeros(image.shape,dtype=bool)
     i = 0
     for box, label, score, mask in zip(*output.values()):
@@ -57,7 +60,7 @@ def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
             continue
         i += 1
 
-        print(f'{classes[label]}: {score:.2f}')
+        # print(f'{classes[label]}: {score:.2f}')
         
         if not args.hide_masks: # draw mask
             image[mask[0] > args.mask_threshold] = image[mask[0] > args.mask_threshold] * (1 - args.mask_opacity) + args.mask_opacity * np.array(colors[label])

@@ -112,5 +112,4 @@ def mask_rcnn_inference():
 
             output_video(processed_frame_folder, output_folder, video)
 
-if __name__ == "__main__":
-    mask_rcnn_inference()
+mask_rcnn_inference()
