@@ -34,7 +34,7 @@ from utils import custom_round, custom_video_round
 import yaml
 import argparse
 
-BASE_DIR = '/Users/akaashrp/Desktop/GT_Classwork/Spring_2024/CS_7641/deepfake-detection/'
+BASE_DIR = '/storage/ice1/2/3/arp9/deepfake-detection/'
 DATA_DIR = os.path.join(BASE_DIR, "data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")

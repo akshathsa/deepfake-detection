@@ -16,25 +16,21 @@ import json
 def train_parse():
     parser = argparse.ArgumentParser()
     parser.add_argument('--num_epochs', default=300, type=int, help='Number of training epochs.')
-    parser.add_argument('--workers', default=4, type=int, help='Number of data loader workers.')
+    parser.add_argument('--workers', default=1, type=int, help='Number of data loader workers.')
     parser.add_argument('--resume', default='', type=str, metavar='PATH', help='Path to latest checkpoint (default: none).')
     parser.add_argument('--dataset', type=str, default='DFDC', help="Which dataset to use (Deepfakes|Face2Face|FaceShifter|FaceSwap|NeuralTextures|All)")
     parser.add_argument('--max_train_videos', type=int, default=-1, help="Maximum number of videos to use for training (default: all).")
     parser.add_argument('--max_val_videos', type=int, default=-1, help="Maximum number of videos to use for validation (default: all).")
     parser.add_argument('--config', type=str, help="config file to use")
     parser.add_argument('--efficient_net', type=int, default=0, help="Which EfficientNet version to use (0 or 7, default: 0)")
-    parser.add_argument('--patience', type=int, default=5, help="How many epochs wait before stopping for validation loss not improving.")
-    
-    # have not used these yet
-    parser.add_argument('--frames_per_video', type=int, default=30, help="How many equidistant frames for each video (default: 30)")
-    parser.add_argument('--batch_size', type=int, default=32, help="Batch size (default: 32)")
+    # parser.add_argument('--patience', type=int, default=5, help="How many epochs wait before stopping for validation loss not improving.")
     
     opt = parser.parse_args()
     return opt
 
 def test_parse():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--workers', default=4, type=int, help='Number of data loader workers.')
+    parser.add_argument('--workers', default=10, type=int, help='Number of data loader workers.')
     parser.add_argument('--model_path', default='', type=str, metavar='PATH', help='Path to model checkpoint (default: none).')
     parser.add_argument('--dataset', type=str, default='DFDC', help="Which dataset to use (Deepfakes|Face2Face|FaceShifter|FaceSwap|NeuralTextures|DFDC)")
     parser.add_argument('--max_videos', type=int, default=-1, help="Maximum number of videos to use for testing (default: all).")
@@ -121,6 +117,9 @@ def check_correct(preds, labels):
     return correct, positive_class, negative_class
 
 def train_val_test_split(data_path, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, train_size, val_size, test_size): # preprocessing to create train and val splits
+    print(f"Train size: {train_size}")
+    print(f"Val size: {val_size}")
+    print(f"Test size: {test_size}")
     assert train_size + val_size + test_size == 1
 
     if not os.path.exists(os.path.join(data_path, "dfdc_train_labels.csv")) or not os.path.exists(os.path.join(data_path, "dfdc_val_labels.csv")) or not os.path.exists(os.path.join(data_path, "dfdc_test_labels.csv")):
@@ -135,9 +134,9 @@ def train_val_test_split(data_path, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, trai
                     labels.append(1)
                 else:
                     labels.append(0)
-        
-        train, test, train_labels, test_labels = train_test_split(video_list, labels, test_size=1-train_size, random_state=69)
-        val, test, val_labels, test_labels = train_test_split(test, test_labels, test_size=test_size/(test_size+val_size), random_state=69)
+
+        train, test, train_labels, test_labels = train_test_split(video_list, labels, train_size=train_size, test_size=1-train_size, random_state=69)
+        val, test, val_labels, test_labels = train_test_split(test, test_labels, train_size=val_size/(test_size+val_size), test_size=test_size/(test_size+val_size), random_state=69)
         if not os.path.exists(TRAINING_DIR):
             os.makedirs(TRAINING_DIR)
         if not os.path.exists(VALIDATION_DIR):
@@ -146,8 +145,10 @@ def train_val_test_split(data_path, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, trai
             os.makedirs(TEST_DIR)
 
         for dir in os.listdir(data_path):
-            if "dfdc" in dir and dir not in TRAINING_DIR and dir not in VALIDATION_DIR:
+            if "dfdc" in dir and dir not in TRAINING_DIR and dir not in VALIDATION_DIR and dir not in TEST_DIR:
                 for video in os.listdir(os.path.join(data_path, dir)):
+                    if not video.endswith("mp4"):
+                        continue
                     if video[:-4] in train:
                         shutil.copyfile(os.path.join(data_path, dir, video), os.path.join(TRAINING_DIR, video))
                     elif video[:-4] in val:
