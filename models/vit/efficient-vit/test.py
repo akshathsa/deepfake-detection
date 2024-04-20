@@ -14,6 +14,7 @@ from albumentations import Compose, RandomBrightnessContrast, \
     ShiftScaleRotate, ImageCompression, PadIfNeeded, GaussNoise, GaussianBlur, Rotate
 
 from transforms.albu import IsotropicResize
+from joblib import Parallel, delayed
 
 from utils import get_method, check_correct, resize, shuffle_dataset, get_n_params, video_to_frames
 import torch.nn as nn
@@ -34,7 +35,7 @@ from utils import custom_round, custom_video_round
 import yaml
 import argparse
 
-BASE_DIR = '/storage/ice1/2/3/arp9/deepfake-detection/'
+BASE_DIR = '/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/'
 DATA_DIR = os.path.join(BASE_DIR, "data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
@@ -95,6 +96,9 @@ def read_frames(video_path, videos, config):
     
     videos.append((video, label, video_path))
 
+def read_frames_wrapper(video_path, videos, config):
+    return read_frames(video_path, videos, config)
+
 # Main body
 if __name__ == "__main__":
     opt = test_parse()
@@ -145,6 +149,28 @@ if __name__ == "__main__":
         if os.path.isdir(os.path.join(dataset, frame_folder)):
             paths.append(os.path.join(dataset, frame_folder))
 
+    real_paths = []
+    fake_paths = []
+    for json_path in glob.glob(os.path.join(DATA_DIR, "metadata", "*.json")):
+        with open(json_path, "r") as f:
+            metadata = json.load(f)
+        
+        frame_folders = os.listdir(dataset)
+        frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+        for index, frame_folder in enumerate(frame_folders):
+            if os.path.isdir(os.path.join(dataset, frame_folder)):
+                if metadata[str(frame_folder) + ".mp4"]["label"] == "REAL":
+                    real_paths.append(os.path.join(dataset, frame_folder))
+                else:
+                    fake_paths.append(os.path.join(dataset, frame_folder))
+    
+    print(len(real_paths))
+
+    real_paths = real_paths[:opt.max_videos//2]
+    fake_paths = fake_paths[:opt.max_videos//2]
+
+    paths = real_paths + fake_paths
+
     # need to fix
     preds = []
     mgr = Manager()
@@ -155,14 +181,13 @@ if __name__ == "__main__":
     # for index, video_folder in enumerate(os.listdir(method_folder)):
     #     paths.append(os.path.join(method_folder, video_folder))
       
-    with Pool(processes=opt.workers) as p:
-        with tqdm(total=len(paths)) as pbar:
-            for v in p.imap_unordered(partial(read_frames, videos=videos, config=config),paths):
+    with tqdm(total=len(paths)) as pbar:
+        with Parallel(n_jobs=56) as parallel:
+            results = parallel(delayed(read_frames_wrapper)(path, videos, config) for path in paths)
+            for _ in results:  # Update progress bar for each completed task
                 pbar.update()
-            
-            pbar.close()
-            p.terminate()
 
+    videos = shuffle_dataset(videos)
     video_names = np.asarray([row[2] for row in videos])
     correct_test_labels = np.asarray([row[1] for row in videos])
     videos = np.asarray([row[0] for row in videos])

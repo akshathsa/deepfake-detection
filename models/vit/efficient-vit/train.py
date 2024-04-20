@@ -35,10 +35,12 @@ import yaml
 import argparse
 import pickle
 
+import time
+
 import joblib
 from joblib import Parallel, delayed
 
-BASE_DIR = '/storage/ice1/2/3/arp9/deepfake-detection/'
+BASE_DIR = '/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/'
 DATA_DIR = os.path.join(BASE_DIR, "data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
@@ -54,7 +56,7 @@ def load_dataset(filename):
         return pickle.load(f)
 
 def read_frames(video_path, train_dataset, validation_dataset):
-    print(f"Processing video {os.path.basename(video_path)}")
+    # print(f"Processing video {os.path.basename(video_path)}")
     if TRAINING_DIR in video_path:
         train_df = pd.DataFrame(pd.read_csv(TRAIN_LABELS_PATH))
         video_folder_name = os.path.basename(video_path)
@@ -67,14 +69,20 @@ def read_frames(video_path, train_dataset, validation_dataset):
         label = float(val_df.loc[val_df['filename'] == video_key]['label'].values[0])
     
     frames = os.listdir(video_path)
+    # print(f"Video {os.path.basename(video_path)}", len(frames))
+    count = 0
         
     for index, frame_image in enumerate(frames):
+        if count == 30:
+            break
         image = cv2.imread(os.path.join(video_path, frame_image))
         if image is not None:
             if TRAINING_DIR in video_path:
                 train_dataset.append((image, label))
             else:
                 validation_dataset.append((image, label))
+
+        count += 1
 
 def read_frames_wrapper(path, train_dataset, validation_dataset):
     return read_frames(path, train_dataset, validation_dataset)
@@ -133,18 +141,52 @@ if __name__ == "__main__":
                     video_to_frames(video_path, frame_path, frame_skip=10)
         print("Frames extracted.")
 
-        paths = []
-        for dataset in sets:
-            frame_folders = os.listdir(dataset)
-            frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
-            for index, frame_folder in enumerate(frame_folders):
-                if TRAINING_DIR in dataset and index == opt.max_train_videos:
-                    break
-                if VALIDATION_DIR in dataset and index == opt.max_val_videos:
-                    break
+        real_train_paths = []
+        fake_train_paths = []
+        real_val_paths = []
+        fake_val_paths = []
+        for json_path in glob.glob(os.path.join(DATA_DIR, "metadata", "*.json")):
+            with open(json_path, "r") as f:
+                metadata = json.load(f)
+            
+            for dataset in sets:
+                frame_folders = os.listdir(dataset)
+                frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+                for index, frame_folder in enumerate(frame_folders):
+                    if os.path.isdir(os.path.join(dataset, frame_folder)):
+                        if TRAINING_DIR in dataset:
+                            if metadata[str(frame_folder) + ".mp4"]["label"] == "REAL":
+                                real_train_paths.append(os.path.join(dataset, frame_folder))
+                            else:
+                                fake_train_paths.append(os.path.join(dataset, frame_folder))
+                        else:
+                            if metadata[str(frame_folder) + ".mp4"]["label"] == "REAL":
+                                real_val_paths.append(os.path.join(dataset, frame_folder))
+                            else:
+                                fake_val_paths.append(os.path.join(dataset, frame_folder))
+        
+        print(len(real_train_paths))
+        print(len(real_val_paths))
 
-                if os.path.isdir(os.path.join(dataset, frame_folder)):
-                    paths.append(os.path.join(dataset, frame_folder))
+        real_train_paths = real_train_paths[:opt.max_train_videos//2]
+        fake_train_paths = fake_train_paths[:opt.max_train_videos//2]
+        real_val_paths = real_val_paths[:opt.max_val_videos//2]
+        fake_val_paths = fake_val_paths[:opt.max_val_videos//2]
+
+        paths = real_train_paths + fake_train_paths + real_val_paths + fake_val_paths
+
+        # paths = []
+        # for dataset in sets:
+        #     frame_folders = os.listdir(dataset)
+        #     frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+        #     for index, frame_folder in enumerate(frame_folders):
+        #         if TRAINING_DIR in dataset and index == opt.max_train_videos:
+        #             break
+        #         if VALIDATION_DIR in dataset and index == opt.max_val_videos:
+        #             break
+
+        #         if os.path.isdir(os.path.join(dataset, frame_folder)):
+        #             paths.append(os.path.join(dataset, frame_folder))
 
         # if len(paths) == 0:
         #     paths = [TRAINING_DIR, VALIDATION_DIR]
@@ -155,12 +197,12 @@ if __name__ == "__main__":
         # train_dataset = []
         # validation_dataset = []
 
-        with Pool(processes=opt.workers) as p:
-            with tqdm(total=len(paths)) as pbar:
-                for v in p.imap_unordered(partial(read_frames, train_dataset=train_dataset, validation_dataset=validation_dataset), paths):
-                    pbar.update()
+        # with Pool(processes=56) as p: # opt.workers
+        #     with tqdm(total=len(paths)) as pbar:
+        #         for v in p.imap_unordered(partial(read_frames, train_dataset=train_dataset, validation_dataset=validation_dataset), paths):
+        #             pbar.update()
 
-            p.terminate()
+        #     p.terminate()
 
         # with tqdm(total=len(paths)) as pbar:
         #     for path in paths:
@@ -169,11 +211,11 @@ if __name__ == "__main__":
             
         #     pbar.close()
         
-        # with tqdm(total=len(paths)) as pbar:
-        #     with Parallel(n_jobs=opt.workers) as parallel:
-        #         results = parallel(delayed(read_frames_wrapper)(path, train_dataset, validation_dataset) for path in paths)
-        #         for _ in results:  # Update progress bar for each completed task
-        #             pbar.update()
+        with tqdm(total=len(paths)) as pbar:
+            with Parallel(n_jobs=56) as parallel:
+                results = parallel(delayed(read_frames_wrapper)(path, train_dataset, validation_dataset) for path in paths)
+                for _ in results:  # Update progress bar for each completed task
+                    pbar.update()
         
         train_dataset = shuffle_dataset(train_dataset)
         validation_dataset = shuffle_dataset(validation_dataset)
@@ -190,10 +232,10 @@ if __name__ == "__main__":
         # with open(os.path.join(DATA_DIR, "val.joblib"), "rb") as f:
         #     validation_dataset = joblib.load(f)
 
-        # train_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/train.pkl"])
-        # train_dataset = train_dataset_getter()
-        # validation_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/val.pkl"])
-        # validation_dataset = validation_dataset_getter()
+        train_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/train.pkl"])
+        train_dataset = train_dataset_getter()
+        validation_dataset_getter = mgr.Function(load_dataset, [DATA_DIR + "/val.pkl"])
+        validation_dataset = validation_dataset_getter()
         
         train_samples = len(train_dataset)
         validation_samples = len(validation_dataset)
@@ -213,22 +255,24 @@ if __name__ == "__main__":
     print("___________________")
 
     loss_fn = torch.nn.BCEWithLogitsLoss(pos_weight=torch.tensor([class_weights])) # log loss
+    # print(train_dataset[0])
+    print(train_dataset[0][0].shape)
 
     # Create the data loaders
     validation_labels = np.asarray([row[1] for row in validation_dataset])
     labels = np.asarray([row[1] for row in train_dataset])
 
-    train_dataset = DeepFakesDataset(np.asarray([row[0] for row in train_dataset]), labels, config['model']['image-size'])
+    train_dataset = DeepFakesDataset([row[0] for row in train_dataset], labels, config['model']['image-size'])
     dl = torch.utils.data.DataLoader(train_dataset, batch_size=config['training']['bs'], shuffle=True, sampler=None,
-                                 batch_sampler=None, num_workers=opt.workers, collate_fn=None,
+                                 batch_sampler=None, num_workers=1, collate_fn=None,
                                  pin_memory=False, drop_last=False, timeout=0,
                                  worker_init_fn=None, prefetch_factor=2,
                                  persistent_workers=False)
     del train_dataset
 
-    validation_dataset = DeepFakesDataset(np.asarray([row[0] for row in validation_dataset]), validation_labels, config['model']['image-size'], mode='validation')
+    validation_dataset = DeepFakesDataset([row[0] for row in validation_dataset], validation_labels, config['model']['image-size'], mode='validation')
     val_dl = torch.utils.data.DataLoader(validation_dataset, batch_size=config['training']['bs'], shuffle=True, sampler=None,
-                                    batch_sampler=None, num_workers=opt.workers, collate_fn=None,
+                                    batch_sampler=None, num_workers=1, collate_fn=None,
                                     pin_memory=False, drop_last=False, timeout=0,
                                     worker_init_fn=None, prefetch_factor=2,
                                     persistent_workers=False)
@@ -275,8 +319,8 @@ if __name__ == "__main__":
             counter += 1
             total_loss += round(loss.item(), 2)
             
-            if index % 1200 == 0: # Intermediate metrics print
-                print("\nLoss: ", total_loss/counter, "Accuracy: ",train_correct/(counter*config['training']['bs']) ,"Train 0s: ", negative, "Train 1s:", positive)
+            # if index % 1200 == 0: # Intermediate metrics print
+            #     print("\nLoss: ", total_loss/counter, "Accuracy: ",train_correct/(counter*config['training']['bs']) ,"Train 0s: ", negative, "Train 1s:", positive)
 
             for i in range(config['training']['bs']):
                 bar.next()
@@ -317,6 +361,13 @@ if __name__ == "__main__":
         previous_loss = total_val_loss
         print("#" + str(t) + "/" + str(opt.num_epochs) + " loss:" +
             str(total_loss) + " accuracy:" + str(train_correct) +" val_loss:" + str(total_val_loss) + " val_accuracy:" + str(val_correct) + " val_0s:" + str(val_negative) + "/" + str(np.count_nonzero(validation_labels == 0)) + " val_1s:" + str(val_positive) + "/" + str(np.count_nonzero(validation_labels == 1)))
+        
+        timestamp = str(time.time())
+        with open(os.path.join(BASE_DIR, "models/output/losses", f"train_losses_{timestamp}"), "a") as f:
+            f.write(total_loss)
+        
+        with open(os.path.join(BASE_DIR, "models/output/losses", f"val_losses_{timestamp}"), "a") as f:
+            f.write(total_val_loss)
     
         if not os.path.exists(MODELS_PATH):
             os.makedirs(MODELS_PATH)

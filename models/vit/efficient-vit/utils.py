@@ -10,6 +10,7 @@ from statistics import mean
 import argparse
 import shutil
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 import pandas as pd
 import json
 
@@ -84,10 +85,7 @@ def get_method(video, data_path):
     return selected_method
 
 def shuffle_dataset(dataset):
-  import random
-  random.seed(69)
-  random.shuffle(dataset)
-  return dataset
+    return shuffle(dataset, random_state=69)
 
 def get_n_params(model):
     pp=0

@@ -14,4 +14,4 @@ cd $SLURM_SUBMIT_DIR
 
 module load anaconda3/2022.05.0.1
 conda activate deepfakes
-python3 /home/hice1/arp9/scratch/deepfake-detection/models/vit/efficient-vit/train.py --workers=1 --max_train_videos=40 --max_val_videos=5 --config="/home/hice1/arp9/scratch/deepfake-detection/models/vit/efficient-vit/configs/architecture.yaml"
+python3 /global/cfs/projectdirs/m3641/Akaash/deepfake-detection/models/vit/efficient-vit/train.py --workers=1 --max_train_videos=40 --max_val_videos=5 --config="/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/models/vit/efficient-vit/configs/architecture.yaml"
