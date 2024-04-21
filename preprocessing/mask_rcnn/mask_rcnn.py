@@ -25,9 +25,10 @@ include_classes = classes[1:] if "all" in args.classes else [c for c in args.cla
 # mode = args.action
 
 # load model
-model = maskrcnn(weights=MaskRCNN_ResNet50_FPN_V2_Weights.DEFAULT).eval()
-if torch.cuda.is_available():
-    model = model.cuda()
+device = torch.device("cuda") if torch.cuda.is_available else torch.device("cpu")
+model = maskrcnn(weights=MaskRCNN_ResNet50_FPN_V2_Weights.DEFAULT).eval().to(device)
+# if torch.cuda.is_available():
+#     model = model.cuda()
 
 def mask_rcnn_inference():
     for dir in os.listdir(args.data_folder):
@@ -35,7 +36,9 @@ def mask_rcnn_inference():
             continue
         for video in os.listdir(f'{args.data_folder}/{dir}'):
             print(f'Processing {video}')
-            
+            if video in os.listdir("processed_frames"):
+                continue
+
             # print(f'Extracting audio from {video}')
             # extract_audio(video)
             
@@ -48,6 +51,8 @@ def mask_rcnn_inference():
             cap = cv2.VideoCapture(source)
             width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            # width = 1920
+            # height = 1080
             # print(f'Video resolution: {width}x{height}')
 
             if cap is None or not cap.isOpened():
@@ -81,25 +86,25 @@ def mask_rcnn_inference():
             # create a list of files
             for extension in args.extensions:
                 files += glob(f"{folder}**/*.{extension}",recursive=True)
-            
-            i = 0
-            global max_bounding_box
-            max_bounding_box = (height, 0, width, 0)
-            while True:
+
+            for path in files:
                 # get the path and image
-                path = files[i]
                 image = cv2.imread(path)
-                i += 1 # increment counter
                 
                 # run the detection
                 image = mask_rcnn_detect(image, model, classes, include_classes, args, colors)
-                # show the image
-                if not args.hide_output:
-                    cv2.imshow(args.display_title, image)
-                    if cv2.waitKey(1) & 0xFF == ord("q"):
-                        break
                 
                 # save output
+                # if not args.no_save:
+                #     if len(images) > 1: # more than 1 person in video
+                #         for idx, image in enumerate(images):
+                #             save_path = os.path.join(processed_frame_folder, str(idx), os.path.relpath(path, folder))
+                #             # save image
+                #             directory = os.path.dirname(save_path)
+                #             if directory:
+                #                 os.makedirs(directory,exist_ok=True)
+                #             cv2.imwrite(save_path,image)
+                
                 if not args.no_save:
                     save_path = os.path.join(processed_frame_folder, os.path.relpath(path, folder))
                     # save image
@@ -107,9 +112,8 @@ def mask_rcnn_inference():
                     if directory:
                         os.makedirs(directory,exist_ok=True)
                     cv2.imwrite(save_path,image)
-                    if i >= len(files):
-                        break
 
-            output_video(processed_frame_folder, output_folder, video)
+            # output_video(processed_frame_folder, output_folder, video, num_people)
+            # output_video(processed_frame_folder, output_folder, video)
 
 mask_rcnn_inference()
