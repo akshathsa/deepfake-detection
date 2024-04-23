@@ -410,8 +410,61 @@
           <br>
           <h3 class="title">Model Comparison</h3>
           <p>
-            Model comparison
+            The SVM model achieved a test accuracy of 59% and an AUC of 0.289. The EfficientNet-ViT model without any preprocessing achieved a test accuracy of 0.53, a precision of 0.5246, an F1 score of 0.5766, a log loss of 0.7202, and an AUC of 0.582, 
+		  whereas with preprocessing and using the mean technique it achieved a test accuracy of 0.63, a precision of 0.5802, an F1 score of 0.7176, a log loss of 0.6999, and an AUC of 0.737, and with the hard voting technique, 
+		  it achieved a test accuracy of 0.73, a precision of 0.7170, an F1 score of 0.7379, a log loss of 0.6621, and an AUC of 0.768. Finally, the Ensemble Model with the LightGBM meta filter achieved a test accuracy of 0.55 with a AUC-ROC of 0.58.
+		  The table below summarizes the results.
           </p>
+		<table class="styled-table">
+            <tr>
+              <th>Model</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>F1 Score</th>
+              <th>Log Loss</th>
+              <th>AUC</th>
+            </tr>
+		<tr>
+              <td>SVM</td>
+              <td>0.59</td>
+              <td>N/A</td>
+              <td>N/A</td>
+              <td>0.70</td>
+              <td>0.289</td>
+            </tr>
+            <tr>
+              <td>EfficientNet-ViT w/o preprocessing</td>
+              <td>0.53</td>
+              <td>0.5246</td>
+              <td>0.5766</td>
+              <td>0.7202</td>
+              <td>0.582</td>
+            </tr>
+            <tr>
+              <td>EfficientNet-ViT w/ preprocessing (Mean)</td>
+              <td>0.63</td>
+              <td>0.5802</td>
+              <td>0.7176</td>
+              <td>0.6999</td>
+              <td>0.737</td>
+            </tr>
+            <tr>
+              <td>EfficientNet-ViT w/ preprocessing (Hard Voting)</td>
+              <td>0.73</td>
+              <td>0.7170</td>
+              <td>0.7379</td>
+              <td>0.6621</td>
+              <td>0.768</td>
+            </tr>
+            <tr>
+              <td>CNN Ensemble</td>
+              <td>0.55</td>
+              <td>N/A</td>
+              <td>N/A</td>
+              <td>N/A</td>
+              <td>0.58</td>
+            </tr>
+          </table>
         </div>
       </div>
     </div>
