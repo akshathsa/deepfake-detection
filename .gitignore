@@ -9,6 +9,7 @@ __pycache__/
 # local data
 /dfdc_train_part_45
 /imgs
+/masked_frames
 /maskrcnn_videos
 metadata.json
 index.html
