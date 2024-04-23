@@ -21,6 +21,6 @@
 /models/vit/efficient-vit/utils.py: Contains helper functions for training and inference processes.<br>
 /models/vit/efficient-vit/configs/architecture.yml: Config file for adjusting model hyperparameters used during training.
 
-/models/ensemble/DenseNet121.pynb: Contains training pipeline for DenseNet121 Model for ensemble model 
-/models/ensemble/InceptionResNet.pynb: Contains training pipeline for InceptionResNet model for ensemble model
-/models/ensemble/Ensemble.pynb: Contains both models loaded as well as the LightGBM to create the meta learner
+/models/ensemble/DenseNet121.ipynb: Contains training pipeline for DenseNet121 Model for ensemble model 
+/models/ensemble/InceptionResNet.ipynb: Contains training pipeline for InceptionResNet model for ensemble model
+/models/ensemble/Ensemble.ipynb: Contains both models loaded as well as the LightGBM to create the meta learner
