@@ -24,5 +24,3 @@
 /models/ensemble/DenseNet121.pynb: Contains training pipeline for DenseNet121 Model for ensemble model 
 /models/ensemble/InceptionResNet.pynb: Contains training pipeline for InceptionResNet model for ensemble model
 /models/ensemble/Ensemble.pynb: Contains both models loaded as well as the LightGBM to create the meta learner
-/model/ensemble/inceptionResNet.h5: trained model for inceptionresnet
-/model/ensemble/DenseNet.h5: trained DenseNet model 
