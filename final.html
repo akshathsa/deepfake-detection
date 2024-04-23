@@ -252,6 +252,14 @@
               <td>16</td>
             </tr>
           </table>
+
+	<h5 class="title"> Ensemble Implementation</h5>
+		<p>The third model that our team created is an Ensemble with a metalearner model. It combines two models a InceptionResNetV2 Model and the DenseNet121 model. Both of these CNNs are then used to create a stack and a meta learner, in our case a LightGBM model is used [10]. We used a very similar approach to the architecture that is described in the DeepFakeStack, using the same models but just condensing it to fit with less models due to the constraint of the project’s timeline [10]. We start by first feeding 200 real videos and 200 deepfake videos as our training set. Then the program downloads the frame at every 7 seconds of video duration. For both the fake and real data points. Next, the frames are resized to (299, 299, 3) for the InceptionResNet model and (224, 224, 3) for the DenseNet model. We then use 20% of the dataset to be the test data and 80% to be the training data. We use pretrained weights for both the model and utilize binary_crossentropy due to our need for binary classification. Once this was done, we trained the model on 10 epochs with each epoch taking 32 steps. Once we finished that, we got an accuracy of 84% for the InceptionResNet model and an accuracy of 73% for the DenseNet model. After, we downloaded the models and started to set up the LightGBM model as the meta learner. Next we extract the features and combine them into the setup for the LightGBM model. We set up this model to use binary log loss to allow binary classification. After we train this model on 100 boosting rounds. By this we were able to achieve an accuracy of 55% for the overall model. 
+ </p>
+		<figure>
+            <img src="./static/images/ensemble/pipe.jpg" alt="Ensemble Model Architecture" style="width:60%">
+            <figcaption>Figure 16 - Ensemble Model architecture [6]</figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -380,8 +388,25 @@
             </p>
           <h5 class="title">CNN Ensemble with Meta-Learner Results and Analysis</h5>
           <p>
-            CNN ensemble with Meta-Learner results and analysis
+            The InceptionResNetModel achieved an accuracy of 0.84 and the DenseNet121 achieved an accuracy of 0.73.  Both of these models used the weights provided by imagenet which is what the models included in the paper the architecture is based on [10]. The accuracy of the Ensemble Model with the LightGBM meta filter achieved an accuracy of 0.55 with a AUC-ROC of 0.58. We realized that the individual models ended up producing a lower accuracy than the individual models. After deeper analysis, we found that the reasons included a lack of specification for each model in the ensemble and a lack of diversification. One aspect that the paper we planned this model off of that we did not consider to incorporate, is the inclusion of diverse models that will identify specific features. These would then be combined to provide a prediction that considers many features each processed by a single model that can then provide a narrower prediction. Another issue that presented itself as a result of using similar models is the fact that both models produced similar errors causing for the errors to be more exacerbated. 
           </p>
+	<figure>
+              <img src="./static/images/ensemble/densenet.jpg" alt="DenseNet121 Confusion Matrix" style="width:100%">
+              <figcaption>Figure 17 - DenseNet Confusion Matrix</figcaption>
+            </figure>
+		<figure>
+              <img src="./static/images/ensemble/inception.jpg" alt="InceptionResNetv2 Confusion Matrix" style="width:100%">
+              <figcaption>Figure 18 - InceptionResNetv2 Confusion Matrix</figcaption>
+            </figure>
+
+	<figure>
+              <img src="./static/images/ensemble/ensembleconf.jpg" alt="Ensemble with meta learner Confusion Matrix" style="width:100%">
+              <figcaption>Figure 19 - Ensemble Confusion Matrix</figcaption>
+            </figure>
+	<figure>
+              <img src="./static/images/ensemble/aucroc.jpg" alt="AUC-ROC Curve for Ensemble" style="width:100%">
+              <figcaption>Figure 20 - AUC-ROC Curve for Ensemble Model</figcaption>
+            </figure>
           <br>
           <h3 class="title">Model Comparison</h3>
           <p>
