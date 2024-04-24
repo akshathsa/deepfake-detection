@@ -17,6 +17,8 @@
 /models/vit/environment.yml: Environment file to create conda environment for training and testing.<br>
 /models/vit/efficient-vit/efficient_vit.py: Contains implementation of EfficientNet-ViT model using PyTorch's out-of-the-box implementation of EfficientNet and a transformer implementation using PyTorch and NumPy.<br>
 /models/vit/efficient-vit/train.py: Contains training procedure for EfficientNet-ViT model.<br>
+/models/vit/efficient-vit/train.ipynb: Jupyter notebook for training EfficientNet-ViT <br>
 /models/vit/efficient-vit/test.py: Contains inference code for trained EfficientNet-ViT model. Loads trained model from checkpoint and evaluates on metrics discussed in the results section of the midterm checkpoint. Generates visualizations based on model performance on these metrics.<br>
 /models/vit/efficient-vit/utils.py: Contains helper functions for training and inference processes.<br>
+/models/vit/efficient-vit/loss_graph.py: Contains code for generating training and validation loss graphs from training results.<br>
 /models/vit/efficient-vit/configs/architecture.yml: Config file for adjusting model hyperparameters used during training.
