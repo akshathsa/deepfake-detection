@@ -428,7 +428,8 @@
           <br>
           <h3 class="title">Model Comparison</h3>
           <p>
-            The SVM model achieved a test accuracy of 59% and an AUC of 0.289. The EfficientNet-ViT model without any preprocessing achieved a test accuracy of 0.53, a precision of 0.5246, an F1 score of 0.5766, a log loss of 0.7202, and an AUC of 0.582, 
+            The SVM model achieved a test accuracy of 59% and an AUC of 0.289. The precision for fake is 0.61 and for real is 0.55. The recall for fake is 0.68 and for real it is 0.48. The f1-score for fake is 0.64 and for real it is 0.52.
+	     The EfficientNet-ViT model without any preprocessing achieved a test accuracy of 0.53, a precision of 0.5246, an F1 score of 0.5766, a log loss of 0.7202, and an AUC of 0.582, 
 		  whereas with preprocessing and using the mean technique it achieved a test accuracy of 0.63, a precision of 0.5802, an F1 score of 0.7176, a log loss of 0.6999, and an AUC of 0.737, and with the hard voting technique, 
 		  it achieved a test accuracy of 0.73, a precision of 0.7170, an F1 score of 0.7379, a log loss of 0.6621, and an AUC of 0.768. Finally, the Ensemble Model with the LightGBM meta filter achieved a test accuracy of 0.55 with a AUC-ROC of 0.58.
 		  The table below summarizes the results.
