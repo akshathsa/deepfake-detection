@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/models/vit/efficient-vit/train.py", line 1, in <module>
-    from efficientnet_pytorch import EfficientNet
-ModuleNotFoundError: No module named 'efficientnet_pytorch'
