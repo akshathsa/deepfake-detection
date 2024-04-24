@@ -12,6 +12,8 @@ import numpy as np
 
 import ffmpeg
 
+device = torch.device("cuda") if torch.cuda.is_available else torch.device("cpu")
+
 def mask_rcnn_parse():
     # default arguments
     parser = argparse.ArgumentParser(description="Mask-RCNN (segmentation model) implementation in PyTorch")
@@ -27,7 +29,7 @@ def mask_rcnn_parse():
     parser.add_argument("--data-folder","--data","-d",default="data",help="data directory")
     output_group.add_argument("--hide-output",action="store_true",help="do not show output")
     output_group.add_argument("--display-title",default="Mask-RCNN",help="window title")
-    output_group.add_argument("--skip-frames",default=1,type=int,help="skip frames (1 for no skip)")
+    parser.add_argument("--skip-frames",default=1,type=int,help="skip frames (1 for no skip)")
     boxes_group.add_argument("--hide-boxes",action="store_true",help="do not show bounding boxes")
     masks_group.add_argument("--hide-masks",action="store_true",help="do not show segmentation masks")
     labels_group.add_argument("--show-labels",action="store_true",help="show labels")
@@ -45,9 +47,11 @@ def mask_rcnn_parse():
 
 def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
     # feed forward the image
-    output = model(torch.tensor(np.expand_dims(image,axis=0)).permute(0,3,1,2) / 255)[0]
-    cover = np.zeros(image.shape,dtype=bool)
+    output = model((torch.tensor(np.expand_dims(image,axis=0)).permute(0,3,1,2) / 255).to(device))[0]
+    # cover = np.zeros(image.shape,dtype=bool)
     i = 0
+
+    boxes = []
     for box, label, score, mask in zip(*output.values()):
         # check if we need to keep detecting
         if score < args.detection_threshold or (i >= args.max_detections and args.max_detections != 0):
@@ -57,13 +61,10 @@ def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
             continue
         i += 1
 
-        print(f'{classes[label]}: {score:.2f}')
+        # print(f'{classes[label]}: {score:.2f}')
         
         if not args.hide_masks: # draw mask
             image[mask[0] > args.mask_threshold] = image[mask[0] > args.mask_threshold] * (1 - args.mask_opacity) + args.mask_opacity * np.array(colors[label])
-
-        # update the cover
-        cover[mask[0] > args.mask_threshold] = 1
 
         if not args.hide_boxes: # draw bounding box and make surrounding area black
             cv2.rectangle(image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), colors[label], args.box_thickness)
@@ -75,12 +76,18 @@ def mask_rcnn_detect(image, model, classes, include_classes, args, colors):
         if args.show_labels:
             cv2.putText(image, f'{classes[label]}: {score:.2f}', (int(box[0]), int(box[1]) - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, colors[label], args.text_thickness)
 
-        image = image[int(box[1]):int(box[3]),int(box[0]):int(box[2])]
+        boxes.append(box)
+        # image = image[int(box[1]):int(box[3]),int(box[0]):int(box[2])]
     
-    ret, thresh = cv2.threshold(cv2.cvtColor(image,cv2.COLOR_BGR2GRAY), 220, 255, cv2.THRESH_BINARY)
-    if args.hide_boxes: # if not showing boxes, make non-masked areas black
-        image[~cover] = 0 # np.tile(np.expand_dims(thresh,axis=2),(1,1,3))[~cover]
-    image[thresh == 255] = 0
+    # for idx in range(len(images)):
+    #     ret, thresh = cv2.threshold(cv2.cvtColor(images[idx],cv2.COLOR_BGR2GRAY), 255, 255, cv2.THRESH_BINARY)
+    #     # if args.hide_boxes: # if not showing boxes, make non-masked areas black
+    #     #     im[~cover] = 0 # np.tile(np.expand_dims(thresh,axis=2),(1,1,3))[~cover]
+    #     images[idx][thresh == 255] = 0
+
+    boxes = sorted(boxes, key=lambda box: int(box[1]))
+    box = boxes[0]
+    image = image[int(box[1]):int(box[3]),int(box[0]):int(box[2])]
     return image
 
 def extract_audio(input_video):

@@ -14,6 +14,7 @@ from albumentations import Compose, RandomBrightnessContrast, \
     ShiftScaleRotate, ImageCompression, PadIfNeeded, GaussNoise, GaussianBlur, Rotate
 
 from transforms.albu import IsotropicResize
+from joblib import Parallel, delayed
 
 from utils import get_method, check_correct, resize, shuffle_dataset, get_n_params, video_to_frames
 import torch.nn as nn
@@ -34,11 +35,13 @@ from utils import custom_round, custom_video_round
 import yaml
 import argparse
 
-BASE_DIR = '/Users/akaashrp/Desktop/GT_Classwork/Spring_2024/CS_7641/deepfake-detection/'
-DATA_DIR = os.path.join(BASE_DIR, "data")
+import time
+
+BASE_DIR = '/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/'
+DATA_DIR = os.path.join(BASE_DIR, "processed_data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
-TEST_DIR = os.path.join(DATA_DIR, "dfdc_test")
+TEST_DIR = os.path.join(DATA_DIR, "test")
 
 MODELS_PATH = os.path.join(BASE_DIR, "models")
 OUTPUT_DIR = os.path.join(MODELS_PATH, "output")
@@ -95,6 +98,9 @@ def read_frames(video_path, videos, config):
     
     videos.append((video, label, video_path))
 
+def read_frames_wrapper(video_path, videos, config):
+    return read_frames(video_path, videos, config)
+
 # Main body
 if __name__ == "__main__":
     opt = test_parse()
@@ -124,26 +130,48 @@ if __name__ == "__main__":
         os.makedirs(OUTPUT_DIR)
     
     dataset = TEST_DIR
-    print("Extracting frames from videos...")
-    videos = os.listdir(dataset)
-    videos = [video for video in videos if video.endswith(".mp4")]
-    for index, video in enumerate(videos):
-        if index == opt.max_videos:
-            break
-        video_path = os.path.join(dataset, video)
-        frame_path = os.path.join(dataset, video.split(".")[0])
-        if not os.path.exists(frame_path):
-            video_to_frames(video_path, frame_path, frame_skip=10)
-    print("Frames extracted.")
+    # print("Extracting frames from videos...")
+    # videos = os.listdir(dataset)
+    # videos = [video for video in videos if video.endswith(".mp4")]
+    # for index, video in enumerate(videos):
+    #     if index == opt.max_videos:
+    #         break
+    #     video_path = os.path.join(dataset, video)
+    #     frame_path = os.path.join(dataset, video.split(".")[0])
+    #     if not os.path.exists(frame_path):
+    #         video_to_frames(video_path, frame_path, frame_skip=10)
+    # print("Frames extracted.")
 
-    paths = []
-    frame_folders = os.listdir(dataset)
-    frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
-    for index, frame_folder in enumerate(frame_folders):
-        if index == opt.max_videos:
-            break
-        if os.path.isdir(os.path.join(dataset, frame_folder)):
-            paths.append(os.path.join(dataset, frame_folder))
+    # paths = []
+    # frame_folders = os.listdir(dataset)
+    # frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+    # for index, frame_folder in enumerate(frame_folders):
+    #     if index == opt.max_videos:
+    #         break
+    #     if os.path.isdir(os.path.join(dataset, frame_folder)):
+    #         paths.append(os.path.join(dataset, frame_folder))
+
+    real_paths = []
+    fake_paths = []
+    for json_path in glob.glob(os.path.join(DATA_DIR, "metadata", "*.json")):
+        with open(json_path, "r") as f:
+            metadata = json.load(f)
+        
+        frame_folders = os.listdir(dataset)
+        frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+        for index, frame_folder in enumerate(frame_folders):
+            if os.path.isdir(os.path.join(dataset, frame_folder)):
+                if metadata[str(frame_folder) + ".mp4"]["label"] == "REAL":
+                    real_paths.append(os.path.join(dataset, frame_folder))
+                else:
+                    fake_paths.append(os.path.join(dataset, frame_folder))
+    
+    print(len(real_paths))
+
+    real_paths = real_paths[:opt.max_videos//2]
+    fake_paths = fake_paths[:opt.max_videos//2]
+
+    paths = real_paths + fake_paths
 
     # need to fix
     preds = []
@@ -155,14 +183,13 @@ if __name__ == "__main__":
     # for index, video_folder in enumerate(os.listdir(method_folder)):
     #     paths.append(os.path.join(method_folder, video_folder))
       
-    with Pool(processes=opt.workers) as p:
-        with tqdm(total=len(paths)) as pbar:
-            for v in p.imap_unordered(partial(read_frames, videos=videos, config=config),paths):
+    with tqdm(total=len(paths)) as pbar:
+        with Parallel(n_jobs=56) as parallel:
+            results = parallel(delayed(read_frames_wrapper)(path, videos, config) for path in paths)
+            for _ in results:  # Update progress bar for each completed task
                 pbar.update()
-            
-            pbar.close()
-            p.terminate()
 
+    videos = shuffle_dataset(videos)
     video_names = np.asarray([row[2] for row in videos])
     correct_test_labels = np.asarray([row[1] for row in videos])
     videos = np.asarray([row[0] for row in videos])
@@ -170,8 +197,9 @@ if __name__ == "__main__":
 
     bar = Bar('Predicting', max=len(videos))
 
+    timestamp = time.time()
     # f = open(opt.dataset + "_" + model_name + "_labels.txt", "w+")
-    f = open(os.path.join(OUTPUT_DIR, f"dfdc_{model_name}_labels.txt"), "w+")
+    f = open(os.path.join(OUTPUT_DIR, f"dfdc_{model_name}_labels_{timestamp}.txt"), "w+")
     for index, video in enumerate(videos):
         video_faces_preds = []
         video_name = video_names[index]
@@ -228,7 +256,7 @@ if __name__ == "__main__":
     
     prcurve = precision_recall_curve(correct_test_labels, custom_round(np.asarray(preds)))
     plt.plot(prcurve[1], prcurve[0])
-    plt.savefig(os.path.join(OUTPUT_DIR, model_name + "_" + opt.dataset + "_prcurve.jpg"))
+    plt.savefig(os.path.join(OUTPUT_DIR, model_name + "_" + opt.dataset + f"_prcurve_{timestamp}.jpg"))
     plt.cla()
     
     print(model_name, "Test Accuracy:", accuracy, "Log Loss:", loss, "F1", f1)

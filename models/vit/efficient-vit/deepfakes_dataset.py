@@ -15,7 +15,7 @@ class DeepFakesDataset(Dataset):
         self.y = torch.from_numpy(labels)
         self.image_size = image_size
         self.mode = mode
-        self.n_samples = images.shape[0]
+        self.n_samples = len(images)
     
     def create_train_transforms(self, size):
         return Compose([
