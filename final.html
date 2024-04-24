@@ -195,10 +195,63 @@
           <p>
             To reduce dataset size, we utilized PyTorch's implementation of Mask R-CNN (torchvision.models.detection.mask_rcnn.MaskRCNN). This allowed us to detect areas of frames in which people are present via pixel-level object segmentation and crop the frames accordingly. We used the videos that were generated using these cropped frames as input to our deepfake detection models. The Mask R-CNN model was initialized with weights obtained by pre-training on the COCO dataset. A sample of the video output (mask and bounding box included for reference) of the Mask R-CNN model is shown below. The video on the left is the original video, and the video on the right is the output of the Mask R-CNN model. On this particular video, the Mask R-CNN model yielded a 75% reduction in size. For simplicity, our current Mask R-CNN implementation is configured to detect only a single person in each frame. A potential improvement would be to configure the model to detect multiple people in each frame and modify our models to handle this additional information and make more informed decisions.
           </p>
-          <h5 class="title">Convolutional Autoencoder Implementation</h5>
+          <h5 class="title">Autoencoder Implementations</h5>
           <p>
-            We also implemented a convolutional autoencoder to reduce the dimensionality of the data. 
+            We decided to leverage autoencoders as a unsupervised, pre-processing step to help learn better representations of our data. Autoencoders work by combining and encoder and decoder architecture. 
+            In their most traditional form, the inputs are passed from a a flat input layer to a fully connected hidden layer, before being passed to an output layer with the exact same size as the input. 
+            The encoding portion of the architecture will reduce the input to a representation held in the hidden layer and the decoding portion will reconstruct the input, with the model being assessed on
+            the quality of that reconstruction. After training, the decoder can be disregarded and the encoder can be used to generate representations of all of the data [12]. Thus, this is a powerful unsupervised technique. Although it uses backpropagation and a loss function, the output is compared is compared against the input itself, and thus the class labels are unneeded.
           </p>
+          <p>
+            We utilized the outputs of the Mask R-CNN as the inputs to the autoencoder. This helped reduce the size of the input by only focusing on the parts of the videos involving the subject. Each video was split
+            into 30 frames which were then fed into the autoencoder. Unfortunately, due to VRAM constraints on the computer being used for this task, we were unable to create sufficiently large autoencoders of this form because of the large
+            number of weights involved. Therefore, we transitioned to using a different form of autoencoder — the convolutional autoencoder.
+          </p>
+          <p>
+            Convolutional autoencoders follow the same principle, although they reduce the size of the input through the use of kernels. This came with some notable advantages. Convolutional networks were designed for vision tasks and thus this approach fit well. The lower number of weights compared to fully connected, dense networks meant 
+            resource issues were alleviated and training was relatively quick. Lastly, whereas traditional autoencoders can be stacked to achieve better representations, we could more easily deepen the convolutional network
+            used here to attempt the same thing. For this project, we used a relatively simple convolutional model, with the displayed architecture.  
+          </p>
+          <figure>
+            <img src="./static/images/autoencoder/conv_ae_architecture.png" style="width:100%">
+            <figcaption>Figure 5 - Convolutional Autoencoder Architecture</figcaption>
+          </figure>
+
+          The following hyperparameters were used to train the autoencoder:
+          <table class="styled-table">
+            <tr>
+              <th>Hyperparameter</th>
+              <th>Value</th>
+            </tr>
+            <tr>
+              <td>Batch Size</td>
+              <td>128</td>
+            </tr>
+            <tr>
+              <td>Learning Rate</td>
+              <td>0.001</td>
+            </tr>
+            <tr>
+              <td>Optimizer</td>
+              <td>SGD</td>
+            </tr>
+          </table>
+
+          <p>
+            The training portion of the dataset was used for training the autoencoder. A subset of about 10% of the training set was withheld as a validation set for measuring the reconstruction loss of the autoencoder. Please note, this is different from the actual validation set used by the classifiers later on. Finally, all of the data from the train, validation, and testing sets was passed through the encoder to obtain representations to be used in classification.
+            Figures 6 and 7 shows an input frame to the autoencoder on the left and the corresponding learned representation on the right.
+          </p> 
+
+            <figure>
+                <img src="./static/images/autoencoder/original.png" style="width:50%">
+                <figcaption>Figure 6 - Input to Autoencoder</figcaption>
+            </figure>
+            <figure>
+                <img src="./static/images/autoencoder/encoded.png" style="width:50%">
+                <figcaption>Figure 7 - Input to Autoencoder</figcaption>
+            </figure>
+
+
           <br>
           <h3 class="title">Deepfake Classification Models</h3>
           <p>
@@ -207,7 +260,7 @@
           <h5 class="title">Support Vector Machine Implementation</h5>
           <figure>
             <img src="./static/images/flowchat.png" style="width:100%">
-            <figcaption>Figure 5 - Flowchart of SVM process</figcaption>
+            <figcaption>Figure 8 - Flowchart of SVM process</figcaption>
           </figure>
           <p>
             For our first model, we utilized a support vector machine [5]. Once we finished the model, we created a visualization to better illustrate the steps and our data processing. We incorporated a flowchart that shows the process of the data preprocessing to feeding the information into the model.
@@ -221,7 +274,7 @@
           </p>
           <figure>
             <img src="./static/images/efficientnet/efficientnet_architecture.png" alt="EfficientNet-ViT Architecture" style="width:60%">
-            <figcaption>Figure 6 - EfficientNet-ViT architecture [6]</figcaption>
+            <figcaption>Figure 9 - EfficientNet-ViT architecture [6]</figcaption>
           </figure>
           <p>
             The dataset was split into training, validation, and test sets using a 60-20-20 split. Since the dataset contained a limited number of real videos and we wanted to ensure that the model was trained on a balanced dataset, we were limited to approximately 520 videos for training although the training set contained about 1400 videos. We were further limited by CPU memory constraints and had to reduce the training set size to 300 videos (150 real and 150 fake). We extracted 30 frames per video for training, yielding 4500 real frames and 4500 fake frames. The model was trained in a supervised manner on these frames for 200 epochs using binary cross-entropy loss. We performed two rounds of experiments - one involved no data preprocessing while the other involved applying both Mask R-CNN and stacked convolutional autoencoders to the dataset. The specific hyperparameters used for model training are presented in the following table. We performed all experiments on login nodes of NERSC Perlmutter, a supercomputer with 64-core AMD EPYC 7763 CPUs and NVIDIA A100 GPUs (PACE ICE limited the dataset size even further). The inference procedure and results for both sets of experiments are presented in the following section.
@@ -258,7 +311,7 @@
  </p>
 		<figure>
             <img src="./static/images/ensemble/pipe.jpg" alt="Ensemble Model Architecture" style="width:60%">
-            <figcaption>Figure 16 - Ensemble Model architecture [6]</figcaption>
+            <figcaption>Figure 10 - Ensemble Model architecture [6]</figcaption>
           </figure>
         </div>
       </div>
@@ -291,11 +344,11 @@
           <h5 class="title">SVM Results and Analysis</h5>
           <figure>
             <img src="./static/images/ROC-SVM.png" alt="ROC" style="width:100%">
-            <figcaption>Figure 7 - ROC curve for SVM</figcaption>
+            <figcaption>Figure 11 - ROC curve for SVM</figcaption>
           </figure>
           <figure>
             <img src="./static/images/confusion-matrix-svm.png" alt="confusion-matrix" style="width:100%">
-            <figcaption>Figure 8 - Confusion-Matrix for SVM</figcaption>
+            <figcaption>Figure 12 - Confusion-Matrix for SVM</figcaption>
           </figure>	
           <p>
             We achieved an AUC of 0.289 and a log loss of 0.70. The low AUC suggests the model cannot distinguish between fake and real videos. This is additionally demonstrated in the confusion matrix. The model is not yet performing well since the accuracy is only 59%. The model requires further hyperparameter tuning and an increase in the training dataset size. For instance, when we used 50 videos and split them into 80% training (40 training videos) and 20% testing, the model produced an accuracy of 54.29%. However, when we increased the number of training videos to 60 and split the dataset to 70% training (42 training videos) and 30% testing, the accuracy shot up to 59%. This shows that with even a slight increase in training data, the accuracy improves drastically.
@@ -303,7 +356,7 @@
           <h5 class="title">EfficientNet-ViT Results and Analysis</h5>
           <figure>
             <img src="./static/images/efficientnet/efficientnet_losses.png" alt="EfficientNet-ViT Training and Validation Losses" style="width:90%">
-            <figcaption>Figure 9 - EfficientNet-ViT training and validation loss curves</figcaption>
+            <figcaption>Figure 13 - EfficientNet-ViT training and validation loss curves</figcaption>
           </figure>
           <p>
             We first note that the model overfitted on the training dataset as evidenced by the increasing validation loss after epoch 12. Additionally, the training loss did not improve significantly after epoch 30. We found that the model trained on the dataset without any preprocessing (Model 1) performed significantly worse than the model trained on the preprocessed dataset (Model 2). The training and validation loss curves for Model 2 are presented above.
@@ -314,31 +367,31 @@
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <figure>
               <img src="./static/images/efficientnet/efficientnet_auc_no_preprocessing.jpg" alt="AUC no pre-processing" style="width:100%">
-              <figcaption>Figure 10 - ROC curve for Model 1</figcaption>
+              <figcaption>Figure 14 - ROC curve for Model 1</figcaption>
             </figure>
             <figure>
               <img src="./static/images/efficientnet/efficientnet_prcurve_no_preprocessing.jpg" alt="PRC no pre-processing" style="width:100%">
-              <figcaption>Figure 11 - Precision-Recall curve for Model 1</figcaption>
+              <figcaption>Figure 15 - Precision-Recall curve for Model 1</figcaption>
             </figure>
           </div>
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <figure>
               <img src="./static/images/efficientnet/efficientnet_auc_hard_voting.jpg" alt="AUC hard voting" style="width:100%">
-              <figcaption>Figure 12 - ROC curve for Model 2 with hard voting</figcaption>
+              <figcaption>Figure 16 - ROC curve for Model 2 with hard voting</figcaption>
             </figure>
             <figure>
               <img src="./static/images/efficientnet/efficientnet_prcurve_hard_voting.jpg" alt="PRC hard voting" style="width:100%">
-              <figcaption>Figure 13 - Precision-Recall curve for Model 2 with hard voting</figcaption>
+              <figcaption>Figure 17 - Precision-Recall curve for Model 2 with hard voting</figcaption>
             </figure>
           </div>
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <figure>
               <img src="./static/images/efficientnet/efficientnet_auc_mean.jpg" alt="AUC mean prediction" style="width:100%">
-              <figcaption>Figure 14 - ROC curve for Model 2 with averaging</figcaption>
+              <figcaption>Figure 18 - ROC curve for Model 2 with averaging</figcaption>
             </figure>
             <figure>
               <img src="./static/images/efficientnet/efficientnet_prcurve_mean.jpg" alt="PRC mean prediction" style="width:100%">
-              <figcaption>Figure 15 - Precision-Recall curve for Model 2 with averaging</figcaption>
+              <figcaption>Figure 19 - Precision-Recall curve for Model 2 with averaging</figcaption>
             </figure>
           </div>
           <table class="styled-table">
@@ -392,20 +445,20 @@
           </p>
 	<figure>
               <img src="./static/images/ensemble/densenet.jpg" alt="DenseNet121 Confusion Matrix" style="width:100%">
-              <figcaption>Figure 17 - DenseNet Confusion Matrix</figcaption>
+              <figcaption>Figure 20 - DenseNet Confusion Matrix</figcaption>
             </figure>
 		<figure>
               <img src="./static/images/ensemble/inception.jpg" alt="InceptionResNetv2 Confusion Matrix" style="width:100%">
-              <figcaption>Figure 18 - InceptionResNetv2 Confusion Matrix</figcaption>
+              <figcaption>Figure 21 - InceptionResNetv2 Confusion Matrix</figcaption>
             </figure>
 
 	<figure>
               <img src="./static/images/ensemble/ensembleconf.jpg" alt="Ensemble with meta learner Confusion Matrix" style="width:100%">
-              <figcaption>Figure 19 - Ensemble Confusion Matrix</figcaption>
+              <figcaption>Figure 22 - Ensemble Confusion Matrix</figcaption>
             </figure>
 	<figure>
               <img src="./static/images/ensemble/aucroc.jpg" alt="AUC-ROC Curve for Ensemble" style="width:100%">
-              <figcaption>Figure 20 - AUC-ROC Curve for Ensemble Model</figcaption>
+              <figcaption>Figure 23 - AUC-ROC Curve for Ensemble Model</figcaption>
             </figure>
           <br>
           <h3 class="title">Model Comparison</h3>
@@ -480,8 +533,7 @@
           <h2 class="title is-3">Next Steps</h2>
           <div class="content has-text-justified">
             <p>
-              <b>PLEASE UPDATE: We can probably remove this depending on the auto-encoder implementation</b>
-							We also plan to utilize stacked denoising autoencoders to yield better representations of the inputs. Autoencoders are neural nets that are usually trained to reduce the dimensionality of inputs and then use an inverse transform to recover an output that is as close to the input as possible. This process allows for the learning of a condensed representation of the data. Stacking multiple of these layers improves this process. While autoencoders are usually used to reduce the dimensionality of the dataset, denoising autoencoders learn a higher dimensional representation. This introduces noise, and denoising autoencoders leverage the process of reconstructing the input through the noise to gain a better understanding of the data [12].
+              The capabilities of the autoencoders were largely limited by the available computing resources. It's likely that the learned representations from the convolutional autoencoder were not of high quality because of how shallow the network was. In the future, we would like to attempt using more robust autoencoder models to improve downstream performance.
             </p>
             <p>
               <b>PLEASE UPDATE: Next steps for SVM implementation cannot talk about PACE</b>
@@ -576,7 +628,7 @@
   </tr>
     <tr>
     <td>Akshath Shvetang Anna</td>
-    <td>Next Steps, Stacked Denoising Autoencoders Implementation</td>
+    <td>Linear autoencoder implementation, Convolutional Autoencoder implemention, Methods</td>
   </tr>
     <tr>
     <td>Harish Rajan</td>
