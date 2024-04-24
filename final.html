@@ -314,11 +314,11 @@
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
             <figure>
               <img src="./static/images/efficientnet/efficientnet_auc_no_preprocessing.jpg" alt="AUC no pre-processing" style="width:100%">
-              <figcaption>Figure 10 - ROC curve for Model 1</figcaption>
+              <figcaption>Figure 10 - ROC curve for Model 1 (no preprocessing)</figcaption>
             </figure>
             <figure>
               <img src="./static/images/efficientnet/efficientnet_prcurve_no_preprocessing.jpg" alt="PRC no pre-processing" style="width:100%">
-              <figcaption>Figure 11 - Precision-Recall curve for Model 1</figcaption>
+              <figcaption>Figure 11 - Precision-Recall curve for Model 1 (no preprocessing)</figcaption>
             </figure>
           </div>
           <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
@@ -378,11 +378,11 @@
             </tr>
             <tr>
               <td>Model 2 (Mean)</td>
-              <td>0.73</td>
-              <td>0.7170</td>
-              <td>0.7379</td>
-              <td>0.6621</td>
-              <td>0.768</td>
+              <td><b>0.73</b></td>
+              <td><b>0.7170</b></td>
+              <td><b>0.7379</b></td>
+              <td><b>0.6621</b></td>
+              <td><b>0.768</b></td>
             </tr>
             <tr>
               <td>Model 3</td>
@@ -409,29 +409,26 @@
             The InceptionResNetModel achieved an accuracy of 0.84 and the DenseNet121 achieved an accuracy of 0.73.  Both of these models used the weights provided by imagenet which is what the models included in the paper the architecture is based on [10]. The accuracy of the Ensemble Model with the LightGBM meta filter achieved an accuracy of 0.55 with a AUC-ROC of 0.58. We realized that the individual models ended up producing a lower accuracy than the individual models. After deeper analysis, we found that the reasons included a lack of specification for each model in the ensemble and a lack of diversification. One aspect that the paper we planned this model off of that we did not consider to incorporate, is the inclusion of diverse models that will identify specific features. These would then be combined to provide a prediction that considers many features each processed by a single model that can then provide a narrower prediction. Another issue that presented itself as a result of using similar models is the fact that both models produced similar errors causing for the errors to be more exacerbated. 
           </p>
 	<figure>
-              <img src="./static/images/ensemble/densenet.jpg" alt="DenseNet121 Confusion Matrix" style="width:100%">
+              <img src="./static/images/ensemble/densenet.jpg" alt="DenseNet121 Confusion Matrix" style="width:80%">
               <figcaption>Figure 18 - DenseNet Confusion Matrix</figcaption>
             </figure>
 		<figure>
-              <img src="./static/images/ensemble/inception.jpg" alt="InceptionResNetv2 Confusion Matrix" style="width:100%">
+              <img src="./static/images/ensemble/inception.jpg" alt="InceptionResNetv2 Confusion Matrix" style="width:80%">
               <figcaption>Figure 19 - InceptionResNetv2 Confusion Matrix</figcaption>
             </figure>
 
 	<figure>
-              <img src="./static/images/ensemble/ensembleconf.jpg" alt="Ensemble with meta learner Confusion Matrix" style="width:100%">
+              <img src="./static/images/ensemble/ensembleconf.jpg" alt="Ensemble with meta learner Confusion Matrix" style="width:80%">
               <figcaption>Figure 20 - Ensemble Confusion Matrix</figcaption>
             </figure>
 	<figure>
-              <img src="./static/images/ensemble/aucroc.jpg" alt="AUC-ROC Curve for Ensemble" style="width:100%">
+              <img src="./static/images/ensemble/aucroc.jpg" alt="AUC-ROC Curve for Ensemble" style="width:80%">
               <figcaption>Figure 21 - AUC-ROC Curve for Ensemble Model</figcaption>
             </figure>
           <br>
           <h3 class="title">Model Comparison</h3>
           <p>
-            The SVM model achieved a test accuracy of 59% and an AUC of 0.289. The EfficientNet-ViT model without any preprocessing achieved a test accuracy of 0.53, a precision of 0.5246, an F1 score of 0.5766, a log loss of 0.7202, and an AUC of 0.582, 
-		  whereas with preprocessing and using the mean technique it achieved a test accuracy of 0.63, a precision of 0.5802, an F1 score of 0.7176, a log loss of 0.6999, and an AUC of 0.737, and with the hard voting technique, 
-		  it achieved a test accuracy of 0.73, a precision of 0.7170, an F1 score of 0.7379, a log loss of 0.6621, and an AUC of 0.768. Finally, the Ensemble Model with the LightGBM meta filter achieved a test accuracy of 0.55 with a AUC-ROC of 0.58.
-		  The table below summarizes the results.
+            The SVM model achieved a test accuracy of 59%, a precision of 0.59, an F1 score of 0.59, a log loss of 0.70, and an AUC of 0.289. The EfficientNet-ViT model without any preprocessing achieved a test accuracy of 0.53, a precision of 0.5246, an F1 score of 0.5766, a log loss of 0.7202, and an AUC of 0.582, whereas with preprocessing and using the hard voting technique it achieved a test accuracy of 0.63, a precision of 0.5802, an F1 score of 0.7176, a log loss of 0.6999, and an AUC of 0.737, and with the mean technique, it achieved a test accuracy of 0.73, a precision of 0.7170, an F1 score of 0.7379, a log loss of 0.6621, and an AUC of 0.768. Finally, the Ensemble Model with the LightGBM meta filter achieved a test accuracy of 0.55, a precision of 0.5423, an F1 score of 0.5923, a log loss of 0.7201, and an AUC of 0.58. The table below summarizes these results.
           </p>
 		<table class="styled-table">
             <tr>
@@ -445,8 +442,8 @@
 		<tr>
               <td>SVM</td>
               <td>0.59</td>
-              <td>N/A</td>
-              <td>N/A</td>
+              <td>0.59</td>
+              <td>0.59</td>
               <td>0.70</td>
               <td>0.289</td>
             </tr>
