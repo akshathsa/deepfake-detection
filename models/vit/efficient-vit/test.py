@@ -35,11 +35,13 @@ from utils import custom_round, custom_video_round
 import yaml
 import argparse
 
+import time
+
 BASE_DIR = '/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/'
-DATA_DIR = os.path.join(BASE_DIR, "data")
+DATA_DIR = os.path.join(BASE_DIR, "processed_data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
-TEST_DIR = os.path.join(DATA_DIR, "dfdc_test")
+TEST_DIR = os.path.join(DATA_DIR, "test")
 
 MODELS_PATH = os.path.join(BASE_DIR, "models")
 OUTPUT_DIR = os.path.join(MODELS_PATH, "output")
@@ -128,26 +130,26 @@ if __name__ == "__main__":
         os.makedirs(OUTPUT_DIR)
     
     dataset = TEST_DIR
-    print("Extracting frames from videos...")
-    videos = os.listdir(dataset)
-    videos = [video for video in videos if video.endswith(".mp4")]
-    for index, video in enumerate(videos):
-        if index == opt.max_videos:
-            break
-        video_path = os.path.join(dataset, video)
-        frame_path = os.path.join(dataset, video.split(".")[0])
-        if not os.path.exists(frame_path):
-            video_to_frames(video_path, frame_path, frame_skip=10)
-    print("Frames extracted.")
+    # print("Extracting frames from videos...")
+    # videos = os.listdir(dataset)
+    # videos = [video for video in videos if video.endswith(".mp4")]
+    # for index, video in enumerate(videos):
+    #     if index == opt.max_videos:
+    #         break
+    #     video_path = os.path.join(dataset, video)
+    #     frame_path = os.path.join(dataset, video.split(".")[0])
+    #     if not os.path.exists(frame_path):
+    #         video_to_frames(video_path, frame_path, frame_skip=10)
+    # print("Frames extracted.")
 
-    paths = []
-    frame_folders = os.listdir(dataset)
-    frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
-    for index, frame_folder in enumerate(frame_folders):
-        if index == opt.max_videos:
-            break
-        if os.path.isdir(os.path.join(dataset, frame_folder)):
-            paths.append(os.path.join(dataset, frame_folder))
+    # paths = []
+    # frame_folders = os.listdir(dataset)
+    # frame_folders = [frame_folder for frame_folder in frame_folders if os.path.isdir(os.path.join(dataset, frame_folder))]
+    # for index, frame_folder in enumerate(frame_folders):
+    #     if index == opt.max_videos:
+    #         break
+    #     if os.path.isdir(os.path.join(dataset, frame_folder)):
+    #         paths.append(os.path.join(dataset, frame_folder))
 
     real_paths = []
     fake_paths = []
@@ -195,8 +197,9 @@ if __name__ == "__main__":
 
     bar = Bar('Predicting', max=len(videos))
 
+    timestamp = time.time()
     # f = open(opt.dataset + "_" + model_name + "_labels.txt", "w+")
-    f = open(os.path.join(OUTPUT_DIR, f"dfdc_{model_name}_labels.txt"), "w+")
+    f = open(os.path.join(OUTPUT_DIR, f"dfdc_{model_name}_labels_{timestamp}.txt"), "w+")
     for index, video in enumerate(videos):
         video_faces_preds = []
         video_name = video_names[index]
@@ -253,7 +256,7 @@ if __name__ == "__main__":
     
     prcurve = precision_recall_curve(correct_test_labels, custom_round(np.asarray(preds)))
     plt.plot(prcurve[1], prcurve[0])
-    plt.savefig(os.path.join(OUTPUT_DIR, model_name + "_" + opt.dataset + "_prcurve.jpg"))
+    plt.savefig(os.path.join(OUTPUT_DIR, model_name + "_" + opt.dataset + f"_prcurve_{timestamp}.jpg"))
     plt.cla()
     
     print(model_name, "Test Accuracy:", accuracy, "Log Loss:", loss, "F1", f1)

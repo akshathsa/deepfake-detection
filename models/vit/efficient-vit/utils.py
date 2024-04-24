@@ -60,16 +60,16 @@ def resize(image, image_size):
 def custom_round(values):
     result = []
     for value in values:
-        if value > 0.55:
+        if value > 0.5:
             result.append(1)
         else:
             result.append(0)
     return np.asarray(result)
 
 def custom_video_round(preds):
-    for pred_value in preds:
-        if pred_value > 0.55:
-            return pred_value
+    # for pred_value in preds:
+    #     if pred_value > 0.55:
+    #         return pred_value
     return mean(preds)
 
 def get_method(video, data_path):
@@ -153,6 +153,51 @@ def train_val_test_split(data_path, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, trai
                         shutil.copyfile(os.path.join(data_path, dir, video), os.path.join(VALIDATION_DIR, video))
                     else:
                         shutil.copyfile(os.path.join(data_path, dir, video), os.path.join(TEST_DIR, video))
+        
+        train_df = pd.DataFrame({"filename": [video + ".mp4" for video in train], "label": train_labels})
+        val_df = pd.DataFrame({"filename": [video + ".mp4" for video in val], "label": val_labels})
+        train_df.to_csv(os.path.join(data_path, "dfdc_train_labels.csv"), index=False)
+        val_df.to_csv(os.path.join(data_path, "dfdc_val_labels.csv"), index=False)
+        test_df = pd.DataFrame({"filename": [video + ".mp4" for video in test], "label": test_labels})
+        test_df.to_csv(os.path.join(data_path, "dfdc_test_labels.csv"), index=False)
+
+def train_val_test_split_maskrcnn(data_path, TRAINING_DIR, VALIDATION_DIR, TEST_DIR, train_size, val_size, test_size): # assume frames are already extracted
+    print(f"Train size: {train_size}")
+    print(f"Val size: {val_size}")
+    print(f"Test size: {test_size}")
+    assert train_size + val_size + test_size == 1
+
+    if not os.path.exists(os.path.join(data_path, "dfdc_train_labels.csv")) or not os.path.exists(os.path.join(data_path, "dfdc_val_labels.csv")) or not os.path.exists(os.path.join(data_path, "dfdc_test_labels.csv")):
+        video_list = []
+        labels = []
+        for json_path in glob(os.path.join(data_path, "metadata", "*.json")):
+            with open(json_path, "r") as f:
+                metadata = json.load(f)
+            for k, v in metadata.items():
+                video_list.append(k[:-4])
+                if v["label"] == "FAKE":
+                    labels.append(1)
+                else:
+                    labels.append(0)
+
+        train, test, train_labels, test_labels = train_test_split(video_list, labels, train_size=train_size, test_size=1-train_size, random_state=69)
+        val, test, val_labels, test_labels = train_test_split(test, test_labels, train_size=val_size/(test_size+val_size), test_size=test_size/(test_size+val_size), random_state=69)
+        if not os.path.exists(TRAINING_DIR):
+            os.makedirs(TRAINING_DIR)
+        if not os.path.exists(VALIDATION_DIR):
+            os.makedirs(VALIDATION_DIR)
+        if not os.path.exists(TEST_DIR):
+            os.makedirs(TEST_DIR)
+
+        for dir in os.listdir(data_path):
+            if "dfdc" in dir and dir not in TRAINING_DIR and dir not in VALIDATION_DIR and dir not in TEST_DIR:
+                for frame_dir in os.listdir(os.path.join(data_path, dir)):
+                    if frame_dir in train:
+                        shutil.copytree(os.path.join(data_path, dir, frame_dir), os.path.join(TRAINING_DIR, frame_dir))
+                    elif frame_dir in val:
+                        shutil.copytree(os.path.join(data_path, dir, frame_dir), os.path.join(VALIDATION_DIR, frame_dir))
+                    else:
+                        shutil.copytree(os.path.join(data_path, dir, frame_dir), os.path.join(TEST_DIR, frame_dir))
         
         train_df = pd.DataFrame({"filename": [video + ".mp4" for video in train], "label": train_labels})
         val_df = pd.DataFrame({"filename": [video + ".mp4" for video in val], "label": val_labels})

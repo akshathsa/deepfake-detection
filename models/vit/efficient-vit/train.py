@@ -41,7 +41,7 @@ import joblib
 from joblib import Parallel, delayed
 
 BASE_DIR = '/global/cfs/projectdirs/m3641/Akaash/deepfake-detection/'
-DATA_DIR = os.path.join(BASE_DIR, "data")
+DATA_DIR = os.path.join(BASE_DIR, "processed_data")
 TRAINING_DIR = os.path.join(DATA_DIR, "dfdc_train")
 VALIDATION_DIR = os.path.join(DATA_DIR, "dfdc_val")
 TEST_DIR = os.path.join(DATA_DIR, "test")
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     model = EfficientViT(config=config, channels=channels, selected_efficient_net = opt.efficient_net) # EfficientNet B0
     model.train()
     
-    optimizer = torch.optim.SGD(model.parameters(), lr=config['training']['lr'], weight_decay=config['training']['weight-decay'])
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['training']['lr'], weight_decay=config['training']['weight-decay'])
     scheduler = lr_scheduler.StepLR(optimizer, step_size=config['training']['step-size'], gamma=config['training']['gamma'])
     starting_epoch = 0
     if os.path.exists(opt.resume):
@@ -364,10 +364,10 @@ if __name__ == "__main__":
         
         timestamp = str(time.time())
         with open(os.path.join(BASE_DIR, "models/output/losses", f"train_losses_{timestamp}"), "a") as f:
-            f.write(total_loss)
+            f.write(f"{total_loss}\n")
         
         with open(os.path.join(BASE_DIR, "models/output/losses", f"val_losses_{timestamp}"), "a") as f:
-            f.write(total_val_loss)
+            f.write(f"{total_val_loss}\n")
     
         if not os.path.exists(MODELS_PATH):
             os.makedirs(MODELS_PATH)

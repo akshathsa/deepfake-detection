@@ -191,6 +191,7 @@ models/vit/cross-efficient-vit/*
 *.MOV
 *.avi
 data/*
+processed_data/*
 *.mp3
 **/checkpoints/*
 *.pth
