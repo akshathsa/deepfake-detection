@@ -465,6 +465,14 @@
               <td>0.58</td>
             </tr>
           </table>
+		<p>
+			The EfficientNet-ViT model w/ preprocessing (Hard Voting) provided the best results and it can be attributed to the fact that it is arguably one of the more powerful models we trained, but it is still far from the performance achieved by some of the research papers and some existing models our team explored.
+			One explanation for this is the lack of compute power at our disposal. As mentioned in the previous sections, we were limited to using a small subset of the data to train our models as a result of not having a sufficient amount of compute. Even with PACE ICE, we were running into training issues, such as memory constraints.
+		</p>
+		<p>
+			We hypothesize that by simply training the model on more data, we will be able to achieve an accuracy comparable to the research papers. However, it is important to note that those models were likely developed and trained by several machine learning experts with far greater resources and time at their disposal.
+			As such, in this context, the results we achieved are quite strong. In the section below, we consider some of the ways we can potentially improve the models and get one step closer to tackling the problem of the proliferation of deepfakes.
+		</p>
         </div>
       </div>
     </div>
